@@ -1,0 +1,16 @@
+{
+  "name": "comfy-portal",
+  "private": true,
+  "version": "0.1.0",
+  "description": "自托管 ComfyUI 图像生成 Web 门户（monorepo）",
+  "workspaces": ["apps/web", "packages/shared/ts"],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@comfy-portal/web",
+    "build:web": "npm run build --workspace=@comfy-portal/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

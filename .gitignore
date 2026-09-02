@@ -1,0 +1,47 @@
+# deps
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# env
+.env
+.env.local
+*.env
+!.env.example
+
+# build
+.next/
+dist/
+build/
+*.tsbuildinfo
+out/
+
+# python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# data / artifacts（产物不入库）
+data/
+artifacts/
+
+# models（~20GB，永不提交）
+models/
+*.gguf
+*.safetensors
+*.ckpt
+*.pth
+
+# images（生成产物不入库）
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# os / logs
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,23 @@
+# ComfyUI 模型清单（~20GB，HF / hf-mirror 下载）
+# 格式：<目标相对路径>  <HF repo>  <file>（精确 repo id 在 download_models.py 落地时确认）
+# 规格书 §2：sd15 base+VAE、sd15 GGUF Q8、SDXL base+VAE、SDXL GGUF Q8_K_M、FLUX.1-dev fp8、4x-UltraSharp
+
+# SD1.5
+checkpoints/sd15_base.safetensors            runwayml/stable-diffusion-v1-5   v1-5-pruned-emaonly.safetensors
+vae/sd15_vae.safetensors                     stabilityai/sd-vae-ft-mse        vae-ft-mse-840000-ema-pruned.safetensors
+
+# SD1.5 GGUF Q8（演示主角，快马 2–5s/图）
+unet/sd15_q8.gguf                            TODO:city96 sd15 gguf Q8          *.gguf
+
+# SDXL
+checkpoints/sdxl_base.safetensors            stabilityai/stable-diffusion-xl-base-1.0  sd_xl_base_1.0.safetensors
+vae/sdxl_vae.safetensors                     stabilityai/sdxl-vae             sdxl_vae.safetensors
+
+# SDXL GGUF Q8_K_M（bench_gguf A/B 对照）
+unet/sdxl_q8_k_m.gguf                        TODO:city96 sdxl gguf Q8_K_M     *.gguf
+
+# FLUX.1-dev fp8（24GB 跑得动，"哇"效应）
+unet/flux1_dev_fp8.safetensors               TODO:flux fp8                     *.safetensors
+
+# 放大模型（img2img 演示）
+upscale/4x_ultrasharp.pth                    Kim2091/UltraSharp               4x-UltraSharp.pth

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "comfy-portal-worker"
+version = "0.1.0"
+description = "ComfyPortal 生成节点：comfy client / 重试 / 上传 / 心跳 / metrics（本地 Windows）"
+requires-python = ">=3.11"
+dependencies = [
+  "rq>=1.16",
+  "redis>=5.0",
+  "httpx>=0.27",
+  "websockets>=12",
+  "Pillow>=10.3",
+  "prometheus-client>=0.20",
+  "pydantic>=2.5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.4"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.ruff]
+line-length = 100
