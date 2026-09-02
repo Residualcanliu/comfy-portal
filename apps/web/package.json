@@ -10,6 +10,7 @@
     "test": "echo \"web: vitest 于 M1 阶段补齐\""
   },
   "dependencies": {
+    "@comfy-portal/shared": "*",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "next": "15.5.25"

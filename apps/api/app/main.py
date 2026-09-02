@@ -4,6 +4,7 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
@@ -21,6 +22,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ComfyPortal API", version="0.1.0", lifespan=lifespan)
+
+# CORS：M1 放开所有源；M4 部署时收紧为前端源（规格书 §9）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 from app.api import auth, gallery, internal, status, tasks, workflows  # noqa: E402
 
