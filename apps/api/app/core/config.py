@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     # 配额
     daily_quota_default: int = 20
 
-    # 产物目录（挂载卷）
-    artifacts_dir: str = "/data/artifacts"
+    # 产物目录（本地 dev 默认相对路径；Docker 部署由 env 覆盖为 /data/artifacts）
+    artifacts_dir: str = "./data/artifacts"
 
 
 settings = Settings()
