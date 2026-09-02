@@ -1,6 +1,8 @@
 // API DTO（规格书 §4 数据模型 + §5 API 设计）
 // 变更时必须同步 packages/shared/python/comfyportal_shared/dto.py
 
+import type { TaskStatus } from "./task-state";
+
 export type SlotType = "text" | "int" | "float";
 
 /** 工作流参数槽（规格书 §2 slots 参数槽） */
