@@ -28,6 +28,11 @@ out/
 data/
 artifacts/
 
+# 本地数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
 # models（~20GB，永不提交）
 models/
 *.gguf
