@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from comfyportal_shared.dto import TaskSummary
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sse_starlette.sse import EventSourceResponse
 from sqlalchemy.orm import Session
+from sse_starlette.sse import EventSourceResponse
 
 from app.api.deps import get_current_user, get_db
 from app.core.prompt import resolve_prompt_api
@@ -16,7 +17,6 @@ from app.models.task import Task
 from app.models.user import User
 from app.models.workflow import Workflow
 from app.schemas.task import TaskCreate
-from comfyportal_shared.dto import TaskSummary
 
 router = APIRouter()
 
@@ -49,7 +49,7 @@ def create_task(
     generation_queue.enqueue(
         "worker.main.run_job", task.id, resolved, job_timeout=1800, result_ttl=0
     )
-    task.enqueued_at = datetime.now(timezone.utc)
+    task.enqueued_at = datetime.now(UTC)
     db.commit()
     db.refresh(task)
     return task
@@ -96,7 +96,7 @@ def cancel_task(
     if task.status != "queued":
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="仅排队中任务可取消")
     task.status = "cancelled"
-    task.finished_at = datetime.now(timezone.utc)
+    task.finished_at = datetime.now(UTC)
     db.commit()
 
 

@@ -1,6 +1,6 @@
 """密码哈希 + JWT。"""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import bcrypt
@@ -22,7 +22,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 def create_access_token(subject: str | int) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.jwt_expire_days)
+    expire = datetime.now(UTC) + timedelta(days=settings.jwt_expire_days)
     payload = {"sub": str(subject), "exp": expire}
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 

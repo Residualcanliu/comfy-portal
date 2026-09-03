@@ -5,9 +5,20 @@ from __future__ import annotations
 import ipaddress
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile, status
+from comfyportal_shared import TaskStatus
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Request,
+    UploadFile,
+    status,
+)
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -15,7 +26,6 @@ from app.api.deps import get_db
 from app.core.config import settings
 from app.models.artifact import Artifact
 from app.models.task import Task
-from comfyportal_shared import TaskStatus
 
 router = APIRouter()
 
@@ -58,7 +68,7 @@ def update_state(
     if body.comfy_prompt_id is not None:
         task.comfy_prompt_id = body.comfy_prompt_id
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if body.state == TaskStatus.RUNNING and task.started_at is None:
         task.started_at = now
     if body.state in (TaskStatus.SUCCESS, TaskStatus.FAILED):

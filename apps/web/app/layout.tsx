@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,12 +16,12 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
         <nav className="flex items-center gap-4 border-b border-zinc-800 px-6 py-3">
-          <a href="/" className="text-lg font-bold">
+          <Link href="/" className="text-lg font-bold">
             ComfyPortal
-          </a>
-          <a href="/login" className="ml-auto text-sm text-zinc-400 hover:text-zinc-100">
+          </Link>
+          <Link href="/login" className="ml-auto text-sm text-zinc-400 hover:text-zinc-100">
             登录 / 注册
-          </a>
+          </Link>
         </nav>
         <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
       </body>

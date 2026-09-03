@@ -86,7 +86,7 @@ def run_job(task_id: int, prompt_api: dict) -> dict:
         _report_state(task_id, "success")
         _publish(task_id, "done", {"state": "success", "artifacts": artifacts})
         return {"task_id": task_id, "artifacts": artifacts}
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         _report_state(task_id, "failed", error=str(e))
         _publish(task_id, "error", {"state": "failed", "error": str(e)})
         raise

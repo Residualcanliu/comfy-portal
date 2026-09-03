@@ -13,9 +13,9 @@ from app.core.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # M1 dev：启动时建表（后续以 alembic 迁移替代）
+    import app.models  # noqa: F401  # 注册模型
     from app.db.base import Base
     from app.db.session import engine
-    import app.models  # noqa: F401  # 注册模型
 
     Base.metadata.create_all(bind=engine)
     yield
@@ -32,7 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.api import auth, gallery, internal, status, tasks, workflows  # noqa: E402
+from app.api import auth, gallery, internal, status, tasks, workflows
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(status.router, prefix="/api", tags=["status"])
