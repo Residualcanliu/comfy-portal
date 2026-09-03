@@ -57,8 +57,14 @@ WORKFLOWS = [
         "slots": _slots(cfg=3.5),
         "model_refs": ["flux1-dev-fp8.safetensors"],
     },
-    # TODO(M1 后续)：SD1.5 文生图（GGUF Q8）——需补 VAE + CLIP
-    # TODO(M1 后续)：img2img 放大（SDXL + 4x-UltraSharp）
+    {
+        "name": "SD1.5 文生图（GGUF Q8）",
+        "description": "快马 2-5s/图，GGUF 量化演示主角",
+        "prompt_api": _load("sd15_gguf_txt2img.json"),
+        "slots": _slots(steps=25, width=512, height=512),
+        "model_refs": ["v1-5-pruned_Q8_0.gguf", "clip_l.safetensors", "vae-ft-mse-840000-ema-pruned.safetensors"],
+    },
+    # TODO(M1 后续)：img2img 放大（SDXL + 4x-UltraSharp）——需文件上传支持（W2）
 ]
 
 
