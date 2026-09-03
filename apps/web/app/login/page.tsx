@@ -33,7 +33,7 @@ export default function Login() {
   }
 
   const inputCls =
-    "w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm";
+    "w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500";
 
   return (
     <div className="mx-auto max-w-sm">
@@ -50,10 +50,10 @@ export default function Login() {
           />
         )}
         <input
-          type="email"
+          type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="邮箱"
+          placeholder="账号 / 邮箱"
           className={inputCls}
         />
         <input

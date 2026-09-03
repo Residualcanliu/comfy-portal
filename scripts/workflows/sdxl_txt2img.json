@@ -19,10 +19,10 @@
     "class_type": "KSampler",
     "inputs": {
       "seed": 42,
-      "steps": 20,
+      "steps": 30,
       "cfg": 7.0,
-      "sampler_name": "euler",
-      "scheduler": "normal",
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
       "denoise": 1.0,
       "model": ["4", 0],
       "positive": ["6", 0],

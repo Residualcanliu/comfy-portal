@@ -33,12 +33,10 @@ def submit_prompt(prompt_api: dict) -> tuple[str, str]:
 
 def track_progress(
     client_id: str,
-    total_nodes: int,
     on_progress: Callable[[float, str, int, int], None],
 ) -> list[dict]:
     """连接 ws 跟踪进度，返回收集到的 image 输出列表（filename/subfolder/type）。"""
     images: list[dict] = []
-    done_nodes = 0
     current_node = ""
     step, max_steps = 0, 1
 
@@ -48,15 +46,15 @@ def track_progress(
             mtype = msg.get("type")
             data = msg.get("data", {})
             if mtype == "progress":
+                # 直接用 KSampler 步数进度 0→100%，不依赖节点完成计数（更可靠）
                 step = int(data.get("value", 0))
                 max_steps = max(int(data.get("max", 1)), 1)
-                pct = (done_nodes + step / max_steps) / total_nodes * 100
+                pct = step / max_steps * 100
                 on_progress(min(pct, 100.0), current_node or "KSampler", step, max_steps)
             elif mtype == "executing":
                 if data.get("node"):
                     current_node = data["node"]
             elif mtype == "executed":
-                done_nodes += 1
                 images.extend(data.get("output", {}).get("images", []))
             elif mtype == "execution_success":
                 break

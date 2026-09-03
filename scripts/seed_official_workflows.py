@@ -20,7 +20,7 @@ WORKFLOWS_DIR = os.path.join(os.path.dirname(__file__), "workflows")
 _BASE_SLOTS = [
     {"key": "prompt", "node": "6", "input": "text", "type": "text", "required": True, "label": "Prompt"},
     {"key": "negative_prompt", "node": "7", "input": "text", "type": "text", "label": "Negative"},
-    {"key": "steps", "node": "3", "input": "steps", "type": "int", "min": 1, "max": 150, "default": 20, "label": "Steps"},
+    {"key": "steps", "node": "3", "input": "steps", "type": "int", "min": 1, "max": 150, "default": 30, "label": "Steps"},
     {"key": "cfg", "node": "3", "input": "cfg", "type": "float", "min": 0, "max": 30, "default": 7.0, "label": "CFG"},
     {"key": "seed", "node": "3", "input": "seed", "type": "int", "default": -1, "label": "Seed(-1随机)"},
     {"key": "width", "node": "5", "input": "width", "type": "int", "default": 1024, "label": "Width"},
@@ -68,20 +68,24 @@ def seed() -> None:
         for wf in WORKFLOWS:
             exists = db.query(Workflow).filter(Workflow.name == wf["name"]).first()
             if exists:
-                print(f"跳过（已存在）: {wf['name']}")
-                continue
-            db.add(
-                Workflow(
-                    user_id=None,
-                    is_official=True,
-                    name=wf["name"],
-                    description=wf["description"],
-                    prompt_api=wf["prompt_api"],
-                    slots=wf["slots"],
-                    model_refs=wf["model_refs"],
+                exists.description = wf["description"]
+                exists.prompt_api = wf["prompt_api"]
+                exists.slots = wf["slots"]
+                exists.model_refs = wf["model_refs"]
+                print(f"更新: {wf['name']}")
+            else:
+                db.add(
+                    Workflow(
+                        user_id=None,
+                        is_official=True,
+                        name=wf["name"],
+                        description=wf["description"],
+                        prompt_api=wf["prompt_api"],
+                        slots=wf["slots"],
+                        model_refs=wf["model_refs"],
+                    )
                 )
-            )
-            print(f"已种子: {wf['name']}")
+                print(f"已种子: {wf['name']}")
         db.commit()
         print("种子完成")
     finally:

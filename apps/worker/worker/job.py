@@ -52,8 +52,6 @@ def run_job(task_id: int, prompt_api: dict) -> dict:
         prompt_id, client_id = submit_prompt(prompt_api)
         _report_state(task_id, "running", comfy_prompt_id=prompt_id)
 
-        total_nodes = len(prompt_api)
-
         def on_progress(pct: float, node: str, step: int, max_steps: int) -> None:
             _publish(
                 task_id,
@@ -61,7 +59,7 @@ def run_job(task_id: int, prompt_api: dict) -> dict:
                 {"pct": pct, "node": node, "step": step, "max_steps": max_steps},
             )
 
-        images = track_progress(client_id, total_nodes, on_progress)
+        images = track_progress(client_id, on_progress)
 
         artifacts = []
         for img in images:

@@ -26,7 +26,16 @@ export async function api<T = unknown>(path: string, opts: RequestInit = {}): Pr
   const res = await fetch(`${API_URL}${path}`, { ...opts, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new Error(body?.detail ?? `${res.status} ${res.statusText}`);
+    const detail = body?.detail;
+    let msg = `${res.status} ${res.statusText}`;
+    if (typeof detail === "string") {
+      msg = detail;
+    } else if (Array.isArray(detail)) {
+      msg = detail
+        .map((d: unknown) => (typeof d === "string" ? d : (d as { msg?: string })?.msg ?? JSON.stringify(d)))
+        .join("; ");
+    }
+    throw new Error(msg);
   }
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;

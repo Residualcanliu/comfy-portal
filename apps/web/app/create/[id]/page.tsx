@@ -50,6 +50,7 @@ export default function Create() {
     es.addEventListener("done", (e) => {
       const d = JSON.parse((e as MessageEvent).data);
       setStatus("success");
+      setProgress(100);
       setArtifacts(d.artifacts);
       es.close();
     });
@@ -88,7 +89,7 @@ export default function Create() {
   }
 
   const inputCls =
-    "mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm";
+    "mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500";
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
