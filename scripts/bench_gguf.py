@@ -33,20 +33,19 @@ FP16_WORKFLOW = {
     "9": {"class_type": "SaveImage", "inputs": {"filename_prefix": "bench_fp16", "images": ["8", 0]}},
 }
 
-# SDXL GGUF Q8_0（UnetLoaderGGUF + 单独 CLIP/VAE）
-# TODO: 下载完成后验证 CLIP 加载（SDXL 可能需要 dual clip-l+clip-g）
+# SDXL GGUF Q8_0（UnetLoaderGGUF 加载 UNET；CLIP/VAE 复用 fp16 checkpoint，两者相同）
+# 注：显存对比有冗余（checkpoint 的 fp16 UNET 也被加载），耗时对比干净（KSampler 用 Q8 UNET）
 GGUF_WORKFLOW = {
+    "4": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": "sd_xl_base_1.0_0.9vae.safetensors"}},
     "1": {"class_type": "UnetLoaderGGUF", "inputs": {"unet_name": "sd_xl_base_1.0_0_Q8_0.gguf"}},
-    "2": {"class_type": "CLIPLoader", "inputs": {"clip_name": "clip_l.safetensors", "type": "stable_diffusion"}},
-    "4": {"class_type": "VAELoader", "inputs": {"vae_name": "vae-ft-mse-840000-ema-pruned.safetensors"}},
-    "6": {"class_type": "CLIPTextEncode", "inputs": {"text": PROMPT, "clip": ["2", 0]}},
-    "7": {"class_type": "CLIPTextEncode", "inputs": {"text": NEGATIVE, "clip": ["2", 0]}},
+    "6": {"class_type": "CLIPTextEncode", "inputs": {"text": PROMPT, "clip": ["4", 1]}},
+    "7": {"class_type": "CLIPTextEncode", "inputs": {"text": NEGATIVE, "clip": ["4", 1]}},
     "5": {"class_type": "EmptyLatentImage", "inputs": {"width": 1024, "height": 1024, "batch_size": 1}},
     "3": {"class_type": "KSampler", "inputs": {
         "seed": 42, "steps": 20, "cfg": 7.0, "sampler_name": "euler", "scheduler": "normal", "denoise": 1.0,
         "model": ["1", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["5", 0],
     }},
-    "8": {"class_type": "VAEDecode", "inputs": {"samples": ["3", 0], "vae": ["4", 0]}},
+    "8": {"class_type": "VAEDecode", "inputs": {"samples": ["3", 0], "vae": ["4", 2]}},
     "9": {"class_type": "SaveImage", "inputs": {"filename_prefix": "bench_gguf", "images": ["8", 0]}},
 }
 
@@ -93,13 +92,17 @@ def _wait_done(prompt_id: str) -> tuple[float, int]:
 
 
 def _bench(wf: dict, name: str) -> tuple[list[float], list[int]]:
+    import copy
+
     times, vrams = [], []
     for i in range(ITERATIONS):
-        pid = _submit(wf)
+        w = copy.deepcopy(wf)
+        w["3"]["inputs"]["seed"] = 42 + i  # 每次换 seed，避免 ComfyUI 缓存命中
+        pid = _submit(w)
         t, v = _wait_done(pid)
         times.append(t)
         vrams.append(v)
-        print(f"  {name} {i + 1}/{ITERATIONS}: {t:.2f}s  peak_vram {v / 1024:.0f}MB")
+        print(f"  {name} {i + 1}/{ITERATIONS}: {t:.2f}s  peak_vram {v / 1024 / 1024:.0f}MB")
     return times, vrams
 
 
@@ -122,7 +125,7 @@ def main() -> None:
     print(f"| 平均耗时 (s) | {fmt(statistics.mean, t16, t8)} |")
     print(f"| P50 耗时 (s) | {fmt(statistics.median, t16, t8)} |")
     print(f"| P95 耗时 (s) | {fmt(_p95, t16, t8)} |")
-    m16, m8 = statistics.mean(v16) / 1024, statistics.mean(v8) / 1024
+    m16, m8 = statistics.mean(v16) / 1024 / 1024, statistics.mean(v8) / 1024 / 1024
     print(f"| 峰值显存均值 (MB) | {m16:.0f} | {m8:.0f} | {m16 - m8:+.0f} |")
 
 
