@@ -53,6 +53,8 @@ def run_job(task_id: int, prompt_api: dict) -> dict:
         _report_state(task_id, "running", comfy_prompt_id=prompt_id)
 
         def on_progress(pct: float, node: str, step: int, max_steps: int) -> None:
+            # 更新 last_activity（TTL 600s=10min，供 API 陈旧恢复判断）
+            redis_client.set(f"task:{task_id}:last_activity", "1", ex=600)
             _publish(
                 task_id,
                 "progress",

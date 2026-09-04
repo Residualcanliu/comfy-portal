@@ -18,6 +18,11 @@ async def lifespan(app: FastAPI):
     from app.db.session import engine
 
     Base.metadata.create_all(bind=engine)
+
+    # GPU 离线陈旧恢复后台线程（规格书 §1）
+    from app.core.stale_recovery import start_stale_recovery
+
+    start_stale_recovery()
     yield
 
 

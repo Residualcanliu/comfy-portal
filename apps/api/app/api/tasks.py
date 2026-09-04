@@ -12,7 +12,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from app.api.deps import get_current_user, get_db
 from app.core.prompt import resolve_prompt_api
-from app.core.redis import async_redis, generation_queue
+from app.core.redis import async_redis, generation_queue, redis_client
 from app.models.task import Task
 from app.models.user import User
 from app.models.workflow import Workflow
@@ -31,7 +31,15 @@ def create_task(
     if wf is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="工作流不存在")
 
-    # 配额检查（M2 完整实现；M1 占位——按 daily_quota 简单判断）
+    # 日配额检查（redis quota:{uid}:{date}，INCR 原子计数，超限回滚）
+    quota_key = f"quota:{user.id}:{datetime.now(UTC).strftime('%Y-%m-%d')}"
+    used = redis_client.incr(quota_key)
+    if used == 1:
+        redis_client.expire(quota_key, 86400)  # 每天自然过期（date 在 key 里已按天隔离）
+    if used > user.daily_quota:
+        redis_client.decr(quota_key)
+        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, detail="今日配额已用完")
+
     resolved = resolve_prompt_api(wf.prompt_api, wf.slots, body.params)
 
     task = Task(
