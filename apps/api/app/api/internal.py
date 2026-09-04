@@ -55,6 +55,13 @@ class StateUpdate(BaseModel):
     comfy_prompt_id: str | None = None
 
 
+def _as_aware(dt: datetime | None) -> datetime | None:
+    """SQLite 存的是 naive datetime，补上 UTC 时区，避免和 aware 时间相减报错。"""
+    if dt is None or dt.tzinfo is not None:
+        return dt
+    return dt.replace(tzinfo=UTC)
+
+
 @router.post("/tasks/{task_id}/state", dependencies=[Depends(verify_internal)])
 def update_state(
     task_id: int, body: StateUpdate, db: Session = Depends(get_db)
@@ -72,13 +79,15 @@ def update_state(
     now = datetime.now(UTC)
     if body.state == TaskStatus.RUNNING and task.started_at is None:
         task.started_at = now
-        if task.enqueued_at is not None:
-            QUEUE_WAIT.observe((now - task.enqueued_at).total_seconds())
+        enq = _as_aware(task.enqueued_at)
+        if enq is not None:
+            QUEUE_WAIT.observe((now - enq).total_seconds())
     if body.state in (TaskStatus.SUCCESS, TaskStatus.FAILED):
         task.finished_at = now
-        if task.started_at is not None:
+        st = _as_aware(task.started_at)
+        if st is not None:
             TASK_DURATION.labels(variant=task.model_variant, status=task.status).observe(
-                (now - task.started_at).total_seconds()
+                (now - st).total_seconds()
             )
         TASKS_TOTAL.labels(status=task.status).inc()
 
