@@ -14,4 +14,4 @@ scrape_configs:
 
   - job_name: worker
     static_configs:
-      - targets: ["__WORKER_IP__:9101"] # 本地 Windows worker，替换为 TAILNET_IP
+      - targets: ["100.125.52.78:9101"] # 本地 Windows worker 的 tailnet IP
