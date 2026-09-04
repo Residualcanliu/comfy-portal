@@ -1,14 +1,14 @@
-# ComfyPortal API 镜像。
-# TODO(M4): 完善 —— 需把 packages/shared 纳入 build（当前 build context 为 apps/api，
-#           M4 阶段将 context 提到仓库根、改用 dockerfile 路径，并处理 shared 依赖）。
+# ComfyPortal API 镜像（build context = 仓库根，见 deploy/docker-compose.yml）
 FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY pyproject.toml ./
-COPY app ./app
+# 复制 shared 契约包 + api 应用（shared 是本地依赖，必须一起打进去）
+COPY packages/shared/python /app/packages/shared/python
+COPY apps/api /app/apps/api
 
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir /app/packages/shared/python
+RUN pip install --no-cache-dir /app/apps/api
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -4,8 +4,8 @@
 services:
   api:
     build:
-      context: ../apps/api
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/api/Dockerfile
     ports:
       - "127.0.0.1:8000:8000" # CF Tunnel 用
       - "${TAILNET_IP}:8001:8000" # worker 用（内部接口）
