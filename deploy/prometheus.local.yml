@@ -1,0 +1,13 @@
+# 本地监控（Windows 上跑 Prometheus 容器，抓宿主机的 API + worker）
+# host.docker.internal = Docker Desktop 的宿主机别名
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: api
+    static_configs:
+      - targets: ["host.docker.internal:8000"]
+
+  - job_name: worker
+    static_configs:
+      - targets: ["host.docker.internal:9101"]

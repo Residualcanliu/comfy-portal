@@ -1,0 +1,47 @@
+{
+  "dashboard": {
+    "title": "ComfyPortal 监控",
+    "uid": "comfyportal",
+    "schemaVersion": 38,
+    "time": { "from": "now-15m", "to": "now" },
+    "panels": [
+      {
+        "type": "stat",
+        "title": "GPU 在线",
+        "targets": [{ "expr": "comfyui_gpu_online", "refId": "A" }],
+        "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 }
+      },
+      {
+        "type": "stat",
+        "title": "队列长度",
+        "targets": [{ "expr": "comfyui_queue_length", "refId": "A" }],
+        "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 }
+      },
+      {
+        "type": "timeseries",
+        "title": "显存占用 (MB)",
+        "targets": [{ "expr": "comfyui_gpu_vram_used_bytes / 1024 / 1024", "refId": "A" }],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+      },
+      {
+        "type": "timeseries",
+        "title": "日任务数 (rate 5m)",
+        "targets": [{ "expr": "sum(rate(comfyui_tasks_total[5m])) by (status)", "legendFormat": "{{status}}", "refId": "A" }],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 }
+      },
+      {
+        "type": "timeseries",
+        "title": "P95 生成耗时 (s)",
+        "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(comfyui_task_duration_seconds_bucket[5m])) by (le, variant))", "legendFormat": "{{variant}}", "refId": "A" }],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 }
+      },
+      {
+        "type": "timeseries",
+        "title": "队列等待 P95 (s)",
+        "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(comfyui_queue_wait_seconds_bucket[5m])) by (le))", "refId": "A" }],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 }
+      }
+    ]
+  },
+  "overwrite": true
+}
