@@ -3,9 +3,10 @@
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from app.core.config import settings
 
@@ -48,6 +49,11 @@ app.include_router(internal.router, prefix="/internal", tags=["internal"])
 
 os.makedirs(settings.artifacts_dir, exist_ok=True)
 app.mount("/files", StaticFiles(directory=settings.artifacts_dir), name="files")
+
+
+@app.get("/metrics")
+def metrics() -> Response:
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/healthz")

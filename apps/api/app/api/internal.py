@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.core.config import settings
+from app.core.metrics import QUEUE_WAIT, TASK_DURATION, TASKS_TOTAL
 from app.models.artifact import Artifact
 from app.models.task import Task
 
@@ -71,8 +72,15 @@ def update_state(
     now = datetime.now(UTC)
     if body.state == TaskStatus.RUNNING and task.started_at is None:
         task.started_at = now
+        if task.enqueued_at is not None:
+            QUEUE_WAIT.observe((now - task.enqueued_at).total_seconds())
     if body.state in (TaskStatus.SUCCESS, TaskStatus.FAILED):
         task.finished_at = now
+        if task.started_at is not None:
+            TASK_DURATION.labels(variant=task.model_variant, status=task.status).observe(
+                (now - task.started_at).total_seconds()
+            )
+        TASKS_TOTAL.labels(status=task.status).inc()
 
     db.commit()
     return {"ok": True}

@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from sse_starlette.sse import EventSourceResponse
 
 from app.api.deps import get_current_user, get_db
+from app.core.metrics import TASKS_TOTAL
 from app.core.prompt import resolve_prompt_api
 from app.core.redis import async_redis, generation_queue, redis_client
 from app.models.task import Task
@@ -52,6 +53,7 @@ def create_task(
     db.add(task)
     db.commit()
     db.refresh(task)
+    TASKS_TOTAL.labels(status="queued").inc()
 
     # 入队：把 resolved prompt_api 一并传给 worker（worker 不直连 PG）
     generation_queue.enqueue(

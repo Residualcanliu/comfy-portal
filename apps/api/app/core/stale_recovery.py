@@ -9,6 +9,7 @@ import threading
 import time
 from datetime import UTC, datetime
 
+from app.core.metrics import GPU_ONLINE
 from app.core.prompt import resolve_prompt_api
 from app.core.redis import generation_queue, redis_client
 from app.db.session import SessionLocal
@@ -24,7 +25,9 @@ def _stale_check() -> None:
     while True:
         time.sleep(CHECK_INTERVAL)
         try:
-            if redis_client.exists("worker:heartbeat"):
+            gpu_online = redis_client.exists("worker:heartbeat")
+            GPU_ONLINE.set(1 if gpu_online else 0)
+            if gpu_online:
                 continue  # GPU 在线，跳过
 
             db = SessionLocal()

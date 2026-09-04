@@ -21,6 +21,7 @@ dependencies = [
   "bcrypt>=4.1",
   "python-multipart>=0.0.9",
   "sse-starlette>=2.1",
+  "prometheus-client>=0.20",
 ]
 
 [project.optional-dependencies]
