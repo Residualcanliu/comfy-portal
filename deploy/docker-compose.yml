@@ -49,6 +49,7 @@ services:
 
   prometheus:
     image: prom/prometheus
+    profiles: ["monitoring"]
     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=15d
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
@@ -56,12 +57,14 @@ services:
 
   grafana:
     image: grafana/grafana
+    profiles: ["monitoring"]
     ports:
       - "${TAILNET_IP}:3000:3000"
     logging: *logging
 
   node_exporter:
     image: prom/node-exporter
+    profiles: ["monitoring"]
     logging: *logging
 
   cloudflared:
