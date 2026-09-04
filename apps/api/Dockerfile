@@ -7,8 +7,8 @@ WORKDIR /app
 COPY packages/shared/python /app/packages/shared/python
 COPY apps/api /app/apps/api
 
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple /app/packages/shared/python
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple /app/apps/api
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ /app/packages/shared/python
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ /app/apps/api
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
