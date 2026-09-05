@@ -16,7 +16,8 @@ if errorlevel 1 goto wait_health
 REM 3. 起 worker（SimpleWorker，Windows 无 fork）+ 心跳 + 指标
 cd /d D:\claudework\work\2026年-09月-02日-ComfyPortal\comfy-portal\apps\worker
 set VENV=D:\claudework\work\2026年-09月-02日-ComfyPortal\comfy-portal\.venv\Scripts
-start "rq-worker" cmd /c "%VENV%\rq.exe worker generation -w rq.worker.SimpleWorker"
+REM 注意：rq worker 必须用 --url 指定 VPS 的 Redis（默认连本地 localhost 会接不到任务）
+start "rq-worker" cmd /c "%VENV%\rq.exe worker generation -w rq.worker.SimpleWorker --url redis://:PASSWORD@100.125.221.105:6379/0"
 start "heartbeat" cmd /c "%VENV%\python.exe -m worker.heartbeat"
 start "metrics"   cmd /c "%VENV%\python.exe -m worker.metrics"
 
