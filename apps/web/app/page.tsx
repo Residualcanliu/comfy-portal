@@ -14,12 +14,16 @@ interface GalleryItem {
 export default function Home() {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [queueLength, setQueueLength] = useState<number | null>(null);
 
   useEffect(() => {
     api<WorkflowSummary[]>("/api/workflows?official=1")
       .then(setWorkflows)
       .catch(console.error);
     api<GalleryItem[]>("/api/gallery").then(setGallery).catch(console.error);
+    api<{ queue_length: number }>("/api/status")
+      .then((s) => setQueueLength(s.queue_length))
+      .catch(console.error);
   }, []);
 
   return (
@@ -56,7 +60,7 @@ export default function Home() {
       <section className="animate-fade-up grid grid-cols-3 gap-4 border-y border-line py-8">
         {[
           { n: workflows.length, label: "预置工作流" },
-          { n: "24GB", label: "本地 GPU 显存" },
+          { n: queueLength ?? "—", label: "当前排队数" },
           { n: gallery.length, label: "生成作品" },
         ].map((s) => (
           <div key={s.label} className="text-center">
@@ -76,7 +80,7 @@ export default function Home() {
             <a
               key={w.id}
               href={`/create/${w.id}`}
-              className="group rounded-xl border border-line bg-surface p-4 transition duration-200 hover:-translate-y-0.5 hover:border-accent"
+              className="group card-shine rounded-xl border border-line bg-surface p-4 transition duration-200 hover:-translate-y-0.5 hover:border-accent"
             >
               <div className="font-bold">{w.name}</div>
               <div className="mt-1 text-xs text-muted">{w.description}</div>

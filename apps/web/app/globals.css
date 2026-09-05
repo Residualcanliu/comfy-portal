@@ -2,23 +2,35 @@
 
 /* 主题变量：浅色（:root）与深色（.dark） */
 :root {
-  --bg: #fafafa;
+  --bg: #f8f7fb;
   --surface: #ffffff;
   --surface-hover: #f4f4f5;
   --line: #e4e4e7;
   --fg: #18181b;
   --muted: #71717a;
   --accent: #7c3aed;
+  /* aurora 光斑（浅色：饱和彩、白底上显眼） */
+  --aurora-1: rgba(139, 92, 246, 0.38);
+  --aurora-2: rgba(59, 130, 246, 0.32);
+  --aurora-3: rgba(217, 70, 239, 0.28);
+  --aurora-beam: rgba(139, 92, 246, 0.10);
+  --shine: rgba(124, 58, 237, 0.16);
 }
 
 .dark {
-  --bg: #0a0a0a;
+  --bg: #0b0714;
   --surface: #18181b;
   --surface-hover: #27272a;
   --line: #27272a;
   --fg: #fafafa;
   --muted: #a1a1aa;
   --accent: #a78bfa;
+  /* aurora 光斑（深色：浓郁暗紫） */
+  --aurora-1: rgba(139, 92, 246, 0.45);
+  --aurora-2: rgba(59, 130, 246, 0.36);
+  --aurora-3: rgba(192, 38, 211, 0.32);
+  --aurora-beam: rgba(255, 255, 255, 0.06);
+  --shine: rgba(255, 255, 255, 0.14);
 }
 
 /* 映射为 Tailwind 颜色 token：bg-bg / bg-surface / text-fg / text-muted / text-accent / border-line */
@@ -49,4 +61,143 @@ body {
   color: var(--fg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Microsoft YaHei", sans-serif;
+}
+
+/* ===== aurora 流光背景 ===== */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aurora__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.7;
+  will-change: transform;
+}
+
+.aurora__blob--1 {
+  width: 42rem;
+  height: 42rem;
+  left: -10%;
+  top: -18%;
+  background: var(--aurora-1);
+  animation: aurora-drift-1 18s ease-in-out infinite alternate;
+}
+
+.aurora__blob--2 {
+  width: 38rem;
+  height: 38rem;
+  right: -12%;
+  top: 16%;
+  background: var(--aurora-2);
+  animation: aurora-drift-2 22s ease-in-out infinite alternate;
+}
+
+.aurora__blob--3 {
+  width: 34rem;
+  height: 34rem;
+  left: 28%;
+  bottom: -22%;
+  background: var(--aurora-3);
+  animation: aurora-drift-3 26s ease-in-out infinite alternate;
+}
+
+/* 斜向扫过的细流光带 */
+.aurora__beam {
+  position: absolute;
+  inset: -60%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent 46%,
+    var(--aurora-beam) 50%,
+    transparent 54%,
+    transparent
+  );
+  animation: aurora-sweep 14s linear infinite;
+}
+
+@keyframes aurora-drift-1 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(60px, 40px) scale(1.15);
+  }
+}
+
+@keyframes aurora-drift-2 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(-70px, 50px) scale(1.1);
+  }
+}
+
+@keyframes aurora-drift-3 {
+  from {
+    transform: translate(0, 0) scale(1.1);
+  }
+  to {
+    transform: translate(50px, -60px) scale(0.95);
+  }
+}
+
+@keyframes aurora-sweep {
+  from {
+    transform: rotate(-18deg) translateX(-35%);
+  }
+  to {
+    transform: rotate(-18deg) translateX(35%);
+  }
+}
+
+/* ===== 卡片扫光（hover 时一道斜光扫过） ===== */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, var(--shine), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.card-shine:hover::before {
+  left: 130%;
+}
+
+/* ===== 进度条流光 ===== */
+.bar-shimmer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -33%;
+  width: 33%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: bar-shimmer 1.6s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes bar-shimmer {
+  from {
+    left: -33%;
+  }
+  to {
+    left: 100%;
+  }
 }

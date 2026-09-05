@@ -17,6 +17,12 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="dark">
       <body className="min-h-screen bg-bg text-fg antialiased">
+        <div className="aurora" aria-hidden="true">
+          <div className="aurora__blob aurora__blob--1" />
+          <div className="aurora__blob aurora__blob--2" />
+          <div className="aurora__blob aurora__blob--3" />
+          <div className="aurora__beam" />
+        </div>
         <nav className="sticky top-0 z-10 flex items-center gap-6 border-b border-line bg-bg/80 px-6 py-3 backdrop-blur">
           <Link
             href="/"

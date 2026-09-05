@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { api, API_URL, getToken } from "@/lib/api";
+import Spinner from "@/components/Spinner";
 import type { WorkflowSummary } from "@comfy-portal/shared";
 
 interface Artifact {
@@ -13,10 +14,26 @@ interface Artifact {
   height: number;
 }
 
+// 任务状态 → 中文 + 配色
+const STATUS_META: Record<string, { label: string; cls: string }> = {
+  queued: { label: "排队中", cls: "bg-amber-500/15 text-amber-400" },
+  running: { label: "生成中", cls: "bg-blue-500/15 text-blue-400" },
+  processing: { label: "生成中", cls: "bg-blue-500/15 text-blue-400" },
+  success: { label: "已完成", cls: "bg-emerald-500/15 text-emerald-400" },
+  completed: { label: "已完成", cls: "bg-emerald-500/15 text-emerald-400" },
+  failed: { label: "失败", cls: "bg-red-500/15 text-red-400" },
+  error: { label: "失败", cls: "bg-red-500/15 text-red-400" },
+  cancelled: { label: "已取消", cls: "bg-zinc-500/15 text-zinc-400" },
+};
+
+type PresetKey = "fast" | "balanced" | "quality";
+
 export default function Create() {
   const { id } = useParams<{ id: string }>();
   const [wf, setWf] = useState<WorkflowSummary | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
+  const [defaultSteps, setDefaultSteps] = useState(30);
+  const [preset, setPreset] = useState<PresetKey>("balanced");
   const [taskId, setTaskId] = useState<number | null>(null);
   const [status, setStatus] = useState("");
   const [progress, setProgress] = useState<number | null>(null);
@@ -28,9 +45,12 @@ export default function Create() {
       .then((w) => {
         setWf(w);
         const init: Record<string, string> = {};
+        let steps = 30;
         for (const s of w.slots) {
           if (s.default !== undefined && s.default !== null) init[s.key] = String(s.default);
+          if (s.key === "steps") steps = Number(s.default ?? 30);
         }
+        setDefaultSteps(steps);
         setValues(init);
       })
       .catch((e) => setErr((e as Error).message));
@@ -64,6 +84,18 @@ export default function Create() {
     return () => es.close();
   }, [taskId]);
 
+  // 画质预设：快速 ≈ 0.6×steps，均衡 = 默认，精细 ≈ 1.4×steps
+  const presets: Record<PresetKey, { label: string; hint: string; steps: number }> = {
+    fast: { label: "快速", hint: "更快", steps: Math.max(15, Math.round(defaultSteps * 0.6)) },
+    balanced: { label: "均衡", hint: "推荐", steps: defaultSteps },
+    quality: { label: "精细", hint: "更慢更细", steps: Math.min(150, Math.round(defaultSteps * 1.4)) },
+  };
+
+  function applyPreset(key: PresetKey) {
+    setPreset(key);
+    setValues((v) => ({ ...v, steps: String(presets[key].steps) }));
+  }
+
   async function submit() {
     if (!getToken()) {
       window.location.href = "/login";
@@ -85,16 +117,45 @@ export default function Create() {
   }
 
   if (wf === null) {
-    return <p className="text-sm text-muted">{err || "加载中…"}</p>;
+    return (
+      <div className="flex flex-col items-center gap-3 py-24 text-accent">
+        <Spinner className="h-8 w-8" />
+        <p className="text-sm text-muted">{err || "加载中…"}</p>
+      </div>
+    );
   }
 
   const inputCls =
     "mt-1 w-full rounded border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted";
+  const meta = STATUS_META[status] ?? { label: status || "待提交", cls: "bg-zinc-500/15 text-zinc-400" };
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
+      {/* 左：参数表单 */}
       <section>
         <h2 className="mb-4 text-xl font-semibold">{wf.name}</h2>
+
+        {/* 画质预设 */}
+        <div className="mb-4">
+          <div className="mb-1.5 text-sm text-muted">画质</div>
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.keys(presets) as PresetKey[]).map((k) => (
+              <button
+                key={k}
+                onClick={() => applyPreset(k)}
+                className={`rounded-lg border px-2 py-2 text-center transition ${
+                  preset === k
+                    ? "border-accent bg-accent/10 text-fg"
+                    : "border-line bg-surface text-muted hover:border-muted"
+                }`}
+              >
+                <div className="text-sm font-semibold">{presets[k].label}</div>
+                <div className="mt-0.5 text-xs opacity-70">{presets[k].hint}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-4">
           {wf.slots.map((s) => (
             <label key={s.key} className="block">
@@ -125,7 +186,7 @@ export default function Create() {
           {err && <p className="text-sm text-red-400">{err}</p>}
           <button
             onClick={submit}
-            disabled={status === "running" || status === "queued"}
+            disabled={status === "running" || status === "queued" || status === "processing"}
             className="w-full rounded bg-gradient-to-r from-violet-500 to-blue-500 py-2 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
           >
             生成
@@ -133,31 +194,51 @@ export default function Create() {
         </div>
       </section>
 
+      {/* 右：进度 + 结果 */}
       <section>
         <h2 className="mb-4 text-xl font-semibold">进度</h2>
         {status === "" ? (
           <p className="text-sm text-muted">尚未提交</p>
         ) : (
-          <div className="space-y-3">
-            <p className="text-sm">状态：{status}</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${meta.cls}`}>
+                {meta.label}
+              </span>
+              {(status === "queued" || status === "running" || status === "processing") && (
+                <Spinner className="h-4 w-4 text-accent" />
+              )}
+            </div>
+
             {progress !== null && (
-              <div className="h-2 w-full rounded bg-surface-hover">
-                <div
-                  className="h-2 rounded bg-gradient-to-r from-violet-500 to-blue-500 transition-all"
-                  style={{ width: `${Math.min(progress, 100)}%` }}
-                />
-                <p className="mt-1 text-xs text-muted">{progress.toFixed(0)}%</p>
+              <div>
+                <div className="mb-1.5 flex items-center justify-between text-sm">
+                  <span className="text-muted">生成进度</span>
+                  <span className="font-mono text-fg">{Math.min(progress, 100).toFixed(0)}%</span>
+                </div>
+                <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-surface-hover">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 transition-all duration-300"
+                    style={{ width: `${Math.min(progress, 100)}%` }}
+                  />
+                  <div className="bar-shimmer" />
+                </div>
               </div>
             )}
+
             {artifacts.length > 0 && (
-              <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-3">
                 {artifacts.map((a) => (
-                  <img
+                  <div
                     key={a.id}
-                    src={`${API_URL}${a.url}`}
-                    alt="生成结果"
-                    className="rounded-lg border border-line"
-                  />
+                    className="overflow-hidden rounded-xl border border-line bg-surface/60 p-2"
+                  >
+                    <img
+                      src={`${API_URL}${a.url}`}
+                      alt={`生成结果 ${a.id}`}
+                      className="mx-auto max-h-[420px] w-auto rounded-lg object-contain"
+                    />
+                  </div>
                 ))}
               </div>
             )}
