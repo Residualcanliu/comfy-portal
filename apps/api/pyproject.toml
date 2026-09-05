@@ -37,3 +37,6 @@ line-length = 100
 # FastAPI 的 Depends() 在默认参数中是标准写法（B008 误报）；
 # 产物文件写入是小文件阻塞，M1 阶段可接受（ASYNC230）
 "app/**/*.py" = ["B008", "ASYNC230"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
