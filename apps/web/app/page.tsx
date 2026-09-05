@@ -23,10 +23,24 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-14">
+      {/* 粗壮 Hero */}
+      <section className="animate-fade-up py-8">
+        <h1 className="text-4xl font-black leading-tight tracking-tight md:text-6xl">
+          用 AI 生成
+          <br />
+          <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            你的下一张图
+          </span>
+        </h1>
+        <p className="mt-4 text-lg text-muted">
+          选工作流 → 填提示词 → 几秒出图，实时看到进度
+        </p>
+      </section>
+
       {/* 工作流快速选择 */}
       <section className="animate-fade-up">
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-muted">
+        <h2 className="mb-5 text-sm font-semibold uppercase tracking-wider text-muted">
           工作流 · 选一个开始
         </h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -36,9 +50,9 @@ export default function Home() {
               href={`/create/${w.id}`}
               className="group rounded-xl border border-line bg-surface p-4 transition duration-200 hover:-translate-y-0.5 hover:border-accent"
             >
-              <div className="font-semibold">{w.name}</div>
+              <div className="font-bold">{w.name}</div>
               <div className="mt-1 text-xs text-muted">{w.description}</div>
-              <div className="mt-3 text-sm text-accent opacity-0 transition group-hover:opacity-100">
+              <div className="mt-3 text-sm font-semibold text-accent opacity-0 transition group-hover:opacity-100">
                 开始生成 →
               </div>
             </a>
@@ -48,8 +62,8 @@ export default function Home() {
 
       {/* 画廊（主视觉） */}
       <section className="animate-fade-up">
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">画廊</h2>
+        <div className="mb-5 flex items-baseline justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">画廊</h2>
           <span className="text-sm text-muted">{gallery.length} 张作品</span>
         </div>
         {gallery.length === 0 ? (
