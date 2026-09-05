@@ -19,6 +19,7 @@ services:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN}
       DAILY_QUOTA_DEFAULT: ${DAILY_QUOTA_DEFAULT:-20}
       ARTIFACTS_DIR: /data/artifacts
+      TAILNET_CIDR: ${TAILNET_CIDR:-0.0.0.0/0}
     depends_on:
       - redis
       - postgres
