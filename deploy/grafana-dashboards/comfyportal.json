@@ -25,8 +25,8 @@
       },
       {
         "type": "timeseries",
-        "title": "日任务数 (rate 5m)",
-        "targets": [{ "expr": "sum(rate(comfyui_tasks_total[5m])) by (status)", "legendFormat": "{{status}}", "refId": "A" }],
+        "title": "日任务数 (24h)",
+        "targets": [{ "expr": "sum(increase(comfyui_tasks_total[24h])) by (status)", "legendFormat": "{{status}}", "refId": "A" }],
         "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 }
       },
       {

@@ -124,17 +124,27 @@ export default function Create() {
     setValues((v) => ({ ...v, steps: String(presets[key].steps) }));
   }
 
-  async function downloadImage(url: string, name: string) {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = name;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(objectUrl);
+  async function downloadImage(url: string, id: number) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      // 按真实文件后缀命名（图可能是 jpg/png）
+      const ext = (url.split(".").pop() ?? "png").split("?")[0];
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `comfyportal-${id}.${ext}`;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      // 延迟释放，避免浏览器还没读完 blob 就被 revoke
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
+    } catch {
+      // fetch 失败兜底：新标签打开原图，用户可右键保存
+      window.open(url, "_blank", "noopener");
+    }
   }
 
   async function submit() {
@@ -346,12 +356,10 @@ export default function Create() {
                       />
                       <div className="mt-2 flex justify-end">
                         <button
-                          onClick={() =>
-                            downloadImage(`${API_URL}${a.url}`, `comfyportal-${a.id}.png`)
-                          }
+                          onClick={() => downloadImage(`${API_URL}${a.url}`, a.id)}
                           className="rounded-full border border-line px-3 py-1 text-xs transition hover:border-accent hover:text-accent"
                         >
-                          下载 PNG
+                          下载图片
                         </button>
                       </div>
                     </div>
