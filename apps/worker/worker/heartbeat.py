@@ -4,11 +4,14 @@
     python -m worker.heartbeat
 """
 
+import logging
 import time
 
 import redis
 
 from worker.config import settings
+
+logger = logging.getLogger(__name__)
 
 INTERVAL = 30  # 秒
 TTL = 60
@@ -17,7 +20,10 @@ TTL = 60
 def main() -> None:
     r = redis.Redis.from_url(settings.redis_url, decode_responses=True)
     while True:
-        r.set("worker:heartbeat", "1", ex=TTL)
+        try:
+            r.set("worker:heartbeat", "1", ex=TTL)
+        except Exception:
+            logger.exception("心跳写入失败，下次重试")
         time.sleep(INTERVAL)
 
 
