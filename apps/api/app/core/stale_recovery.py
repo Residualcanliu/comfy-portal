@@ -4,10 +4,10 @@
     attempt < 2 → 回队列（attempt+1），否则 failed。
 """
 
+from datetime import UTC, datetime
 import logging
 import threading
 import time
-from datetime import UTC, datetime
 
 from app.core.metrics import GPU_ONLINE
 from app.core.prompt import resolve_prompt_api

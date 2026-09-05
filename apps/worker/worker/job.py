@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 from io import BytesIO
+import json
 
 import httpx
-import redis
 from PIL import Image
+import redis
 
 from worker.comfy import fetch_image, submit_prompt, track_progress
 from worker.config import settings
