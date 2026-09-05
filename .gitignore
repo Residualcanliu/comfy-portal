@@ -56,3 +56,6 @@ Thumbs.db
 *.log
 *.zip
 *.tar
+
+# 面试准备（仅本地，不公开）
+INTERVIEW.md

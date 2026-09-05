@@ -40,7 +40,12 @@ def track_progress(
     current_node = ""
     step, max_steps = 0, 1
 
-    with connect(f"{_ws_url()}?clientId={client_id}", open_timeout=30) as ws:
+    with connect(
+        f"{_ws_url()}?clientId={client_id}",
+        open_timeout=30,
+        # ComfyUI 生成时主循环阻塞、来不及回 pong，默认 20s keepalive ping 会误判超时断开
+        ping_interval=None,
+    ) as ws:
         for raw in ws:
             msg = json.loads(raw)
             mtype = msg.get("type")
