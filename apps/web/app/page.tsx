@@ -23,41 +23,39 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="space-y-14">
-      {/* Hero */}
-      <section className="animate-fade-up py-10 text-center">
-        <h1 className="bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
-          ComfyPortal
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-muted">
-          自托管 ComfyUI 图像生成门户 —— 选工作流，填提示词，实时出图
-        </p>
-      </section>
-
-      {/* 工作流 */}
+    <div className="space-y-10">
+      {/* 工作流快速选择 */}
       <section className="animate-fade-up">
-        <h2 className="mb-4 text-xl font-semibold">预置工作流</h2>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-muted">
+          工作流 · 选一个开始
+        </h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {workflows.map((w) => (
             <a
               key={w.id}
               href={`/create/${w.id}`}
-              className="group rounded-xl border border-line bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-accent"
+              className="group rounded-xl border border-line bg-surface p-4 transition duration-200 hover:-translate-y-0.5 hover:border-accent"
             >
-              <div className="font-medium">{w.name}</div>
-              <div className="mt-1 text-sm text-muted">{w.description}</div>
+              <div className="font-semibold">{w.name}</div>
+              <div className="mt-1 text-xs text-muted">{w.description}</div>
+              <div className="mt-3 text-sm text-accent opacity-0 transition group-hover:opacity-100">
+                开始生成 →
+              </div>
             </a>
           ))}
         </div>
       </section>
 
-      {/* 画廊 */}
+      {/* 画廊（主视觉） */}
       <section className="animate-fade-up">
-        <h2 className="mb-4 text-xl font-semibold">画廊</h2>
+        <div className="mb-4 flex items-baseline justify-between">
+          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">画廊</h2>
+          <span className="text-sm text-muted">{gallery.length} 张作品</span>
+        </div>
         {gallery.length === 0 ? (
-          <p className="text-sm text-muted">暂无作品，去选一个工作流生成吧</p>
+          <p className="text-sm text-muted">暂无作品，去上面选个工作流生成第一张图吧</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {gallery.map((g) => (
               <a
                 key={g.id}
