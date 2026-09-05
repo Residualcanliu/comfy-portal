@@ -2,7 +2,8 @@
 line-length = 100
 
 [lint.isort]
-force-sort-within-sections = true
+force-sort-within-sections = false
+known-first-party = ["app", "worker", "comfyportal_shared"]
 
 [lint.per-file-ignores]
 # FastAPI 的 Depends() 在默认参数中是标准写法（B008 误报）；

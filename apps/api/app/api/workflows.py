@@ -1,6 +1,5 @@
 """工作流 CRUD（规格书 §5）。响应复用 shared 的 WorkflowSummary。"""
 
-from comfyportal_shared.dto import WorkflowSummary
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +7,7 @@ from app.api.deps import get_current_user, get_db
 from app.models.user import User
 from app.models.workflow import Workflow
 from app.schemas.workflow import WorkflowCreate
+from comfyportal_shared.dto import WorkflowSummary
 
 router = APIRouter()
 

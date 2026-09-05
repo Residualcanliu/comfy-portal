@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 import json
+from datetime import UTC, datetime
 
-from comfyportal_shared.dto import TaskSummary
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sse_starlette.sse import EventSourceResponse
@@ -18,6 +17,7 @@ from app.models.task import Task
 from app.models.user import User
 from app.models.workflow import Workflow
 from app.schemas.task import TaskCreate
+from comfyportal_shared.dto import TaskSummary
 
 router = APIRouter()
 

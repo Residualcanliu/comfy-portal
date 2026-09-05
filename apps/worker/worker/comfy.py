@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 import json
-from urllib.parse import urlparse
 import uuid
+from collections.abc import Callable
+from urllib.parse import urlparse
 
 import httpx
 from websockets.sync.client import connect

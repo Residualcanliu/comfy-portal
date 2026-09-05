@@ -1,7 +1,7 @@
 """FastAPI 入口（规格书 §5）。"""
 
-from contextlib import asynccontextmanager
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,9 +14,9 @@ from app.core.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # M1 dev：启动时建表（后续以 alembic 迁移替代）
+    import app.models  # noqa: F401  # 注册模型
     from app.db.base import Base
     from app.db.session import engine
-    import app.models  # noqa: F401  # 注册模型
 
     Base.metadata.create_all(bind=engine)
 

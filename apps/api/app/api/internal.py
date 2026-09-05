@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 import ipaddress
 import os
 import uuid
+from datetime import UTC, datetime
 
-from comfyportal_shared import TaskStatus
 from fastapi import (
     APIRouter,
     Depends,
@@ -27,6 +26,7 @@ from app.core.config import settings
 from app.core.metrics import QUEUE_WAIT, TASK_DURATION, TASKS_TOTAL
 from app.models.artifact import Artifact
 from app.models.task import Task
+from comfyportal_shared import TaskStatus
 
 router = APIRouter()
 

@@ -2,8 +2,9 @@
 
 from typing import Any
 
-from comfyportal_shared.dto import Slot
 from pydantic import BaseModel
+
+from comfyportal_shared.dto import Slot
 
 
 class WorkflowCreate(BaseModel):
