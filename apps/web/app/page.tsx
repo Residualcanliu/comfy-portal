@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api, API_URL } from "@/lib/api";
+import Spinner from "@/components/Spinner";
 import type { WorkflowSummary } from "@comfy-portal/shared";
 
 interface GalleryItem {
@@ -15,12 +16,18 @@ export default function Home() {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [queueLength, setQueueLength] = useState<number | null>(null);
+  const [workflowsLoading, setWorkflowsLoading] = useState(true);
+  const [galleryLoading, setGalleryLoading] = useState(true);
 
   useEffect(() => {
     api<WorkflowSummary[]>("/api/workflows?official=1")
       .then(setWorkflows)
-      .catch(console.error);
-    api<GalleryItem[]>("/api/gallery").then(setGallery).catch(console.error);
+      .catch(console.error)
+      .finally(() => setWorkflowsLoading(false));
+    api<GalleryItem[]>("/api/gallery")
+      .then(setGallery)
+      .catch(console.error)
+      .finally(() => setGalleryLoading(false));
     api<{ queue_length: number }>("/api/status")
       .then((s) => setQueueLength(s.queue_length))
       .catch(console.error);
@@ -75,21 +82,28 @@ export default function Home() {
         <h2 className="mb-5 text-sm font-semibold uppercase tracking-wider text-muted">
           工作流 · 选一个开始
         </h2>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {workflows.map((w) => (
-            <a
-              key={w.id}
-              href={`/create/${w.id}`}
-              className="group card-shine rounded-xl border border-line bg-surface p-4 transition duration-200 hover:-translate-y-0.5 hover:border-accent"
-            >
-              <div className="font-bold">{w.name}</div>
-              <div className="mt-1 text-xs text-muted">{w.description}</div>
-              <div className="mt-3 text-sm font-semibold text-accent opacity-0 transition group-hover:opacity-100">
-                开始生成 →
-              </div>
-            </a>
-          ))}
-        </div>
+        {workflowsLoading ? (
+          <div className="flex items-center gap-3 py-10 text-accent">
+            <Spinner className="h-5 w-5" />
+            <span className="text-sm text-muted">正在加载工作流…</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {workflows.map((w) => (
+              <a
+                key={w.id}
+                href={`/create/${w.id}`}
+                className="group card-shine rounded-xl border border-line bg-surface p-4 transition duration-200 hover:-translate-y-0.5 hover:border-accent"
+              >
+                <div className="font-bold">{w.name}</div>
+                <div className="mt-1 text-xs text-muted">{w.description}</div>
+                <div className="mt-3 text-sm font-semibold text-accent opacity-0 transition group-hover:opacity-100">
+                  开始生成 →
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 画廊 */}
@@ -98,7 +112,12 @@ export default function Home() {
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">画廊</h2>
           <span className="text-sm text-muted">{gallery.length} 张作品</span>
         </div>
-        {gallery.length === 0 ? (
+        {galleryLoading ? (
+          <div className="flex items-center gap-3 py-10 text-accent">
+            <Spinner className="h-5 w-5" />
+            <span className="text-sm text-muted">正在加载画廊…</span>
+          </div>
+        ) : gallery.length === 0 ? (
           <p className="text-sm text-muted">暂无作品，去上面选个工作流生成第一张图吧</p>
         ) : (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">

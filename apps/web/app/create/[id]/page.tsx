@@ -118,9 +118,23 @@ export default function Create() {
 
   if (wf === null) {
     return (
-      <div className="flex flex-col items-center gap-3 py-24 text-accent">
-        <Spinner className="h-8 w-8" />
-        <p className="text-sm text-muted">{err || "加载中…"}</p>
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
+        {err ? (
+          <>
+            <p className="text-sm text-red-400">加载失败：{err}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded-full border border-line px-4 py-1.5 text-sm transition hover:border-muted"
+            >
+              重试
+            </button>
+          </>
+        ) : (
+          <>
+            <Spinner className="h-8 w-8 text-accent" />
+            <p className="text-sm text-muted">正在加载工作流…</p>
+          </>
+        )}
       </div>
     );
   }
