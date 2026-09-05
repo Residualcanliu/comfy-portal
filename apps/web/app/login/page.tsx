@@ -65,7 +65,7 @@ export default function Login() {
           className={inputCls}
         />
         {err && <p className="text-sm text-red-400">{err}</p>}
-        <button className="w-full rounded bg-fg py-2 font-medium text-bg">
+        <button className="w-full rounded bg-gradient-to-r from-violet-500 to-blue-500 py-2 font-medium text-white transition hover:opacity-90">
           {mode === "login" ? "登录" : "注册"}
         </button>
       </form>

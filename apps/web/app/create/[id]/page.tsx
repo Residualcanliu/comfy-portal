@@ -126,7 +126,7 @@ export default function Create() {
           <button
             onClick={submit}
             disabled={status === "running" || status === "queued"}
-            className="w-full rounded bg-fg py-2 font-medium text-bg disabled:opacity-50"
+            className="w-full rounded bg-gradient-to-r from-violet-500 to-blue-500 py-2 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
           >
             生成
           </button>
@@ -143,7 +143,7 @@ export default function Create() {
             {progress !== null && (
               <div className="h-2 w-full rounded bg-surface-hover">
                 <div
-                  className="h-2 rounded bg-fg transition-all"
+                  className="h-2 rounded bg-gradient-to-r from-violet-500 to-blue-500 transition-all"
                   style={{ width: `${Math.min(progress, 100)}%` }}
                 />
                 <p className="mt-1 text-xs text-muted">{progress.toFixed(0)}%</p>
