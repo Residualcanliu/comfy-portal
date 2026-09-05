@@ -16,7 +16,7 @@ jobs:
           python-version: "3.11"
       - run: pip install -e packages/shared/python -e "apps/api[dev]"
       - run: ruff check apps/api
-      - run: pytest apps/api/tests
+      - run: cd apps/api && pytest tests
 
   worker:
     name: worker (ruff)
