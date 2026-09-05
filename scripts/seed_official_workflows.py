@@ -59,7 +59,7 @@ WORKFLOWS = [
     },
     {
         "name": "FLUX.1-dev（fp8）",
-        "description": "高质量文生图，fp8 量化，24GB 可跑",
+        "description": "高质量文生图，fp8 量化",
         "prompt_api": _load("flux_txt2img.json"),
         "slots": _slots(cfg=3.5),
         "model_refs": ["flux1-dev-fp8.safetensors"],

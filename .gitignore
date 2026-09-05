@@ -46,6 +46,10 @@ artifacts/
 *.jpeg
 *.webp
 
+# 但 docs/ 下的文档截图要入库（README 引用）
+!docs/*.png
+!docs/*.jpg
+
 # os / logs
 .DS_Store
 Thumbs.db
