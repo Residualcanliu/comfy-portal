@@ -25,22 +25,22 @@ export default function RootLayout({
             ComfyPortal
           </Link>
           <div className="hidden items-center gap-5 text-sm md:flex">
-            <a href="/#workflows" className="text-muted transition hover:text-fg">
+            <Link href="/#workflows" className="text-muted transition hover:text-fg">
               工作流
-            </a>
-            <a href="/#gallery" className="text-muted transition hover:text-fg">
+            </Link>
+            <Link href="/#gallery" className="text-muted transition hover:text-fg">
               画廊
-            </a>
+            </Link>
           </div>
           <div className="ml-auto flex items-center gap-4">
             <ThemeToggle />
             <AuthNav />
-            <a
+            <Link
               href="/#workflows"
               className="rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
             >
               开始生成
-            </a>
+            </Link>
           </div>
         </nav>
         <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
