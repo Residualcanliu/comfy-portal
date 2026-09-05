@@ -1,10 +1,9 @@
 """Redis 客户端 + RQ 队列。"""
 
+from app.core.config import settings
 import redis
 import redis.asyncio as aioredis
 from rq import Queue
-
-from app.core.config import settings
 
 # 同步客户端（状态 / 配额 / pub/sub 发布），字符串解码
 redis_client = redis.Redis.from_url(settings.redis_url, decode_responses=True)

@@ -3,10 +3,9 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from app.core.config import settings
 import bcrypt
 import jwt
-
-from app.core.config import settings
 
 
 def hash_password(password: str) -> str:
