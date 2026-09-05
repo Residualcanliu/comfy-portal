@@ -16,6 +16,7 @@ export default function Home() {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [queueLength, setQueueLength] = useState<number | null>(null);
+  const [gpuOnline, setGpuOnline] = useState<boolean | null>(null);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
 
@@ -28,8 +29,11 @@ export default function Home() {
       .then(setGallery)
       .catch(console.error)
       .finally(() => setGalleryLoading(false));
-    api<{ queue_length: number }>("/api/status")
-      .then((s) => setQueueLength(s.queue_length))
+    api<{ queue_length: number; gpu_online: boolean }>("/api/status")
+      .then((s) => {
+        setQueueLength(s.queue_length);
+        setGpuOnline(s.gpu_online);
+      })
       .catch(console.error);
   }, []);
 
@@ -47,6 +51,20 @@ export default function Home() {
         <p className="mt-4 max-w-xl text-lg text-muted">
           选工作流 → 填提示词 → 几秒出图，实时看到进度
         </p>
+        {gpuOnline !== null && (
+          <div
+            className={`mt-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${
+              gpuOnline
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${gpuOnline ? "bg-emerald-400" : "bg-amber-400"}`}
+            />
+            <span>{gpuOnline ? "主机在线 · 可立即生成" : "主机离线 · 可提交，稍后生成"}</span>
+          </div>
+        )}
         <div className="mt-8 flex gap-3">
           <a
             href="#workflows"
