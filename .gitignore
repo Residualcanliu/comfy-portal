@@ -33,8 +33,8 @@ artifacts/
 *.sqlite
 *.sqlite3
 
-# models（~20GB，永不提交）
-models/
+# models（~20GB，永不提交）——仅锚定仓库根目录，避免误伤 apps/api/app/models（ORM 代码）
+/models/
 *.gguf
 *.safetensors
 *.ckpt
