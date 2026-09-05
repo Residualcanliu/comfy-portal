@@ -51,22 +51,22 @@ def _load(name):
 
 WORKFLOWS = [
     {
-        "name": "SDXL 文生图（fp16）",
-        "description": "质量基线，1024×1024，fp16 全精度",
+        "name": "SDXL 高清出图",
+        "description": "1024×1024 高清，画质均衡",
         "prompt_api": _load("sdxl_txt2img.json"),
         "slots": _slots(cfg=6.0, steps=35),
         "model_refs": ["sd_xl_base_1.0_0.9vae.safetensors"],
     },
     {
-        "name": "FLUX.1-dev（fp8）",
-        "description": "高质量文生图，fp8 量化",
+        "name": "FLUX 顶级画质",
+        "description": "细节最丰富，画质最好",
         "prompt_api": _load("flux_txt2img.json"),
         "slots": _slots(cfg=3.5),
         "model_refs": ["flux1-dev-fp8.safetensors"],
     },
     {
-        "name": "SD1.5 文生图（GGUF Q8）",
-        "description": "轻量快出，768×768，GGUF 量化演示",
+        "name": "SD1.5 极速出图",
+        "description": "几秒一张，追求速度",
         "prompt_api": _load("sd15_gguf_txt2img.json"),
         "slots": _slots(steps=30, width=768, height=768),
         "model_refs": ["v1-5-pruned_Q8_0.gguf", "clip_l.safetensors", "vae-ft-mse-840000-ema-pruned.safetensors"],
