@@ -23,9 +23,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="space-y-14">
-      {/* 粗壮 Hero */}
-      <section className="animate-fade-up py-8">
+    <div className="space-y-16">
+      {/* Hero */}
+      <section className="animate-fade-up py-10">
         <h1 className="text-4xl font-black leading-tight tracking-tight md:text-6xl">
           用 AI 生成
           <br />
@@ -33,13 +33,41 @@ export default function Home() {
             你的下一张图
           </span>
         </h1>
-        <p className="mt-4 text-lg text-muted">
+        <p className="mt-4 max-w-xl text-lg text-muted">
           选工作流 → 填提示词 → 几秒出图，实时看到进度
         </p>
+        <div className="mt-8 flex gap-3">
+          <a
+            href="#workflows"
+            className="rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-6 py-3 font-semibold text-white transition hover:opacity-90"
+          >
+            开始生成
+          </a>
+          <a
+            href="#gallery"
+            className="rounded-full border border-line px-6 py-3 font-semibold transition hover:border-muted"
+          >
+            浏览画廊
+          </a>
+        </div>
       </section>
 
-      {/* 工作流快速选择 */}
-      <section className="animate-fade-up">
+      {/* 数据条 */}
+      <section className="animate-fade-up grid grid-cols-3 gap-4 border-y border-line py-8">
+        {[
+          { n: workflows.length, label: "预置工作流" },
+          { n: "24GB", label: "本地 GPU 显存" },
+          { n: gallery.length, label: "生成作品" },
+        ].map((s) => (
+          <div key={s.label} className="text-center">
+            <div className="text-3xl font-black md:text-4xl">{s.n}</div>
+            <div className="mt-1 text-sm text-muted">{s.label}</div>
+          </div>
+        ))}
+      </section>
+
+      {/* 工作流 */}
+      <section id="workflows" className="animate-fade-up scroll-mt-20">
         <h2 className="mb-5 text-sm font-semibold uppercase tracking-wider text-muted">
           工作流 · 选一个开始
         </h2>
@@ -60,8 +88,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 画廊（主视觉） */}
-      <section className="animate-fade-up">
+      {/* 画廊 */}
+      <section id="gallery" className="animate-fade-up scroll-mt-20">
         <div className="mb-5 flex items-baseline justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">画廊</h2>
           <span className="text-sm text-muted">{gallery.length} 张作品</span>
@@ -92,6 +120,18 @@ export default function Home() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* 结尾 CTA */}
+      <section className="animate-fade-up rounded-2xl border border-line bg-surface p-10 text-center">
+        <h2 className="text-3xl font-black tracking-tight">准备好生成你的第一张图了吗？</h2>
+        <p className="mt-2 text-muted">免费注册，选个工作流，几秒出图</p>
+        <a
+          href="#workflows"
+          className="mt-6 inline-block rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-8 py-3 font-semibold text-white transition hover:opacity-90"
+        >
+          开始生成
+        </a>
       </section>
     </div>
   );
