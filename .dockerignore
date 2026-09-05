@@ -1,0 +1,22 @@
+# Docker 构建时排除（build context = 仓库根，见 deploy/docker-compose.yml）
+# 关键：别把 .env（含真实密钥）和 80MB 的镜像 tar 打进镜像
+.git
+.gitignore
+.dockerignore
+.env
+**/.env
+**/.env.*
+**/__pycache__
+**/*.pyc
+.venv
+**/.venv
+node_modules
+.next
+data
+artifacts
+*.tar
+*.zip
+docs
+README.md
+README_EN.md
+*.log

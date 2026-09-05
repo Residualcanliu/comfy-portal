@@ -55,3 +55,4 @@ artifacts/
 Thumbs.db
 *.log
 *.zip
+*.tar
