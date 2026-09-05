@@ -11,7 +11,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from app.api.deps import get_current_user, get_db
 from app.core.metrics import TASKS_TOTAL
-from app.core.prompt import resolve_prompt_api
+from app.core.prompt import check_prompt, resolve_prompt_api
 from app.core.redis import async_redis, generation_queue, redis_client
 from app.models.task import Task
 from app.models.user import User
@@ -32,14 +32,20 @@ def create_task(
     if wf is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="工作流不存在")
 
-    # 日配额检查（redis quota:{uid}:{date}，INCR 原子计数，超限回滚）
-    quota_key = f"quota:{user.id}:{datetime.now(UTC).strftime('%Y-%m-%d')}"
-    used = redis_client.incr(quota_key)
-    if used == 1:
-        redis_client.expire(quota_key, 86400)  # 每天自然过期（date 在 key 里已按天隔离）
-    if used > user.daily_quota:
-        redis_client.decr(quota_key)
-        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, detail="今日配额已用完")
+    # 违规 prompt 检测（含色情/违规词直接拒绝）
+    prompt_text = str(body.params.get("prompt") or "")
+    if check_prompt(prompt_text):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="提示词包含违规内容，请修改后重试")
+
+    # 日配额检查（管理员跳过；redis quota:{uid}:{date}，INCR 原子计数，超限回滚）
+    if not user.is_admin:
+        quota_key = f"quota:{user.id}:{datetime.now(UTC).strftime('%Y-%m-%d')}"
+        used = redis_client.incr(quota_key)
+        if used == 1:
+            redis_client.expire(quota_key, 86400)  # 每天自然过期（date 在 key 里已按天隔离）
+        if used > user.daily_quota:
+            redis_client.decr(quota_key)
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, detail="今日配额已用完")
 
     resolved = resolve_prompt_api(wf.prompt_api, wf.slots, body.params)
 

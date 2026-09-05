@@ -19,6 +19,7 @@ export default function Home() {
   const [gpuOnline, setGpuOnline] = useState<boolean | null>(null);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     api<WorkflowSummary[]>("/api/workflows?official=1")
@@ -35,7 +36,20 @@ export default function Home() {
         setGpuOnline(s.gpu_online);
       })
       .catch(console.error);
+    api<{ is_admin: boolean }>("/api/auth/me")
+      .then((m) => setIsAdmin(m.is_admin))
+      .catch(() => {});
   }, []);
+
+  async function deleteArtifact(id: number) {
+    if (!confirm("确定删除这张作品吗？")) return;
+    try {
+      await api(`/api/gallery/${id}`, { method: "DELETE" });
+      setGallery((g) => g.filter((x) => x.id !== id));
+    } catch (e) {
+      alert((e as Error).message);
+    }
+  }
 
   return (
     <div className="space-y-16">
@@ -140,24 +154,36 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {gallery.map((g) => (
-              <a
+              <div
                 key={g.id}
-                href={`${API_URL}${g.url}`}
-                target="_blank"
-                rel="noreferrer"
                 className="group relative aspect-square overflow-hidden rounded-lg border border-line"
               >
-                <img
-                  src={`${API_URL}${g.url}`}
-                  alt={`作品 ${g.id}`}
-                  className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                />
-                <div className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-3 opacity-0 transition duration-300 group-hover:opacity-100">
-                  <span className="text-xs text-white">
-                    {g.width} × {g.height}
-                  </span>
-                </div>
-              </a>
+                <a
+                  href={`${API_URL}${g.url}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block h-full w-full"
+                >
+                  <img
+                    src={`${API_URL}${g.url}`}
+                    alt={`作品 ${g.id}`}
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  />
+                  <div className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-3 opacity-0 transition duration-300 group-hover:opacity-100">
+                    <span className="text-xs text-white">
+                      {g.width} × {g.height}
+                    </span>
+                  </div>
+                </a>
+                {isAdmin && (
+                  <button
+                    onClick={() => deleteArtifact(g.id)}
+                    className="absolute right-2 top-2 rounded-full bg-red-500/80 px-2.5 py-1 text-xs text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600"
+                  >
+                    删除
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         )}

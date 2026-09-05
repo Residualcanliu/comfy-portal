@@ -9,9 +9,24 @@ from typing import Any
 # 违规内容硬性过滤：无论用户/默认值怎么填，都强制追加到负面提示词，
 # 阻止色情 / 暴力 / 血腥 / 仇恨等违规生成。
 SAFETY_NEGATIVE = (
-    "nudity, nsfw, explicit, porn, sexual, violence, gore, blood, weapon, "
-    "hate symbol, racism, offensive"
+    "nudity, naked, nude, nsfw, explicit, porn, pornographic, sex, sexual, "
+    "erotic, hentai, lewd, exposed breasts, exposed genitals, genitalia, "
+    "violence, gore, blood, weapon, gun, hate symbol, racism, offensive, "
+    "adult content, 18+, 裸体, 色情, 淫秽"
 )
+
+# 用户 prompt 违规词（命中即拒绝提交，大小写不敏感，中英文）
+BANNED_PROMPT_WORDS = (
+    "nude", "naked", "nudity", "nsfw", "porn", "pornographic", "sex", "sexual",
+    "explicit", "hentai", "erotic", "lewd", "adult content", "裸体", "裸照",
+    "色情", "黄图", "淫秽", "成人", "性交", "做爱",
+)
+
+
+def check_prompt(prompt: str) -> bool:
+    """检测 prompt 是否含违规词，命中返回 True。"""
+    lowered = prompt.lower()
+    return any(word in lowered for word in BANNED_PROMPT_WORDS)
 
 
 def resolve_prompt_api(
