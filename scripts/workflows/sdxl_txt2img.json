@@ -9,7 +9,7 @@
   },
   "7": {
     "class_type": "CLIPTextEncode",
-    "inputs": { "text": "low quality, blurry, watermark", "clip": ["4", 1] }
+    "inputs": { "text": "low quality, worst quality, blurry, watermark, text, logo, jpeg artifacts, deformed, bad anatomy, extra limbs, extra fingers, mutated hands, poorly drawn face, bad proportions", "clip": ["4", 1] }
   },
   "5": {
     "class_type": "EmptyLatentImage",
@@ -19,8 +19,8 @@
     "class_type": "KSampler",
     "inputs": {
       "seed": 42,
-      "steps": 30,
-      "cfg": 7.0,
+      "steps": 35,
+      "cfg": 6.0,
       "sampler_name": "dpmpp_2m",
       "scheduler": "karras",
       "denoise": 1.0,

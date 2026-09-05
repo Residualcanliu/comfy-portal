@@ -17,17 +17,17 @@
   },
   "7": {
     "class_type": "CLIPTextEncode",
-    "inputs": { "text": "low quality, blurry, watermark", "clip": ["2", 0] }
+    "inputs": { "text": "low quality, worst quality, blurry, watermark, text, logo, jpeg artifacts, deformed, bad anatomy, extra limbs, extra fingers, mutated hands, poorly drawn face, bad proportions", "clip": ["2", 0] }
   },
   "5": {
     "class_type": "EmptyLatentImage",
-    "inputs": { "width": 512, "height": 512, "batch_size": 1 }
+    "inputs": { "width": 768, "height": 768, "batch_size": 1 }
   },
   "3": {
     "class_type": "KSampler",
     "inputs": {
       "seed": 42,
-      "steps": 25,
+      "steps": 30,
       "cfg": 7.0,
       "sampler_name": "dpmpp_2m",
       "scheduler": "karras",
