@@ -23,7 +23,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <section>
         <h2 className="mb-4 text-xl font-semibold">预置工作流</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -31,10 +31,10 @@ export default function Home() {
             <a
               key={w.id}
               href={`/create/${w.id}`}
-              className="rounded-lg border border-zinc-800 p-4 transition hover:border-zinc-500"
+              className="group rounded-xl border border-line bg-surface p-5 transition hover:border-muted"
             >
               <div className="font-medium">{w.name}</div>
-              <div className="mt-1 text-sm text-zinc-400">{w.description}</div>
+              <div className="mt-1 text-sm text-muted">{w.description}</div>
             </a>
           ))}
         </div>
@@ -43,16 +43,24 @@ export default function Home() {
       <section>
         <h2 className="mb-4 text-xl font-semibold">画廊</h2>
         {gallery.length === 0 ? (
-          <p className="text-sm text-zinc-500">暂无作品，去选一个工作流生成吧</p>
+          <p className="text-sm text-muted">暂无作品，去选一个工作流生成吧</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             {gallery.map((g) => (
-              <img
+              <a
                 key={g.id}
-                src={`${API_URL}${g.url}`}
-                alt={`作品 ${g.id}`}
-                className="aspect-square rounded-lg object-cover"
-              />
+                href={`${API_URL}${g.url}`}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative aspect-square overflow-hidden rounded-lg border border-line"
+              >
+                <img
+                  src={`${API_URL}${g.url}`}
+                  alt={`作品 ${g.id}`}
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100" />
+              </a>
             ))}
           </div>
         )}

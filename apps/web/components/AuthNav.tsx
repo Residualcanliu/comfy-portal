@@ -31,7 +31,7 @@ export default function AuthNav() {
 
   if (!me) {
     return (
-      <Link href="/login" className="text-sm text-zinc-400 hover:text-zinc-100">
+      <Link href="/login" className="text-sm text-muted hover:text-fg">
         登录 / 注册
       </Link>
     );
@@ -39,8 +39,8 @@ export default function AuthNav() {
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      <span className="text-zinc-300">{me.display_name}</span>
-      <button onClick={logout} className="text-zinc-400 hover:text-zinc-100">
+      <span className="text-fg">{me.display_name}</span>
+      <button onClick={logout} className="text-muted hover:text-fg">
         退出
       </button>
     </div>

@@ -27,13 +27,14 @@ export default function Login() {
       });
       setToken(res.access_token);
       router.push("/");
+      router.refresh();
     } catch (e) {
       setErr((e as Error).message);
     }
   }
 
   const inputCls =
-    "w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500";
+    "w-full rounded border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted";
 
   return (
     <div className="mx-auto max-w-sm">
@@ -64,13 +65,13 @@ export default function Login() {
           className={inputCls}
         />
         {err && <p className="text-sm text-red-400">{err}</p>}
-        <button className="w-full rounded bg-zinc-100 py-2 font-medium text-zinc-900">
+        <button className="w-full rounded bg-fg py-2 font-medium text-bg">
           {mode === "login" ? "登录" : "注册"}
         </button>
       </form>
       <button
         onClick={() => setMode(mode === "login" ? "register" : "login")}
-        className="mt-3 text-sm text-zinc-400 hover:text-zinc-100"
+        className="mt-3 text-sm text-muted hover:text-fg"
       >
         {mode === "login" ? "没有账号？去注册" : "已有账号？去登录"}
       </button>

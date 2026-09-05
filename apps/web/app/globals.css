@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
+/* 主题变量：浅色（:root）与深色（.dark） */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-hover: #f4f4f5;
+  --line: #e4e4e7;
+  --fg: #18181b;
+  --muted: #71717a;
 }
 
+.dark {
+  --bg: #0a0a0a;
+  --surface: #18181b;
+  --surface-hover: #27272a;
+  --line: #27272a;
+  --fg: #fafafa;
+  --muted: #a1a1aa;
+}
+
+/* 映射为 Tailwind 颜色 token：bg-bg / bg-surface / text-fg / text-muted / border-line */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
 }

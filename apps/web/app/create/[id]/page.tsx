@@ -85,11 +85,11 @@ export default function Create() {
   }
 
   if (wf === null) {
-    return <p className="text-sm text-zinc-500">{err || "加载中…"}</p>;
+    return <p className="text-sm text-muted">{err || "加载中…"}</p>;
   }
 
   const inputCls =
-    "mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500";
+    "mt-1 w-full rounded border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted";
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
@@ -98,7 +98,7 @@ export default function Create() {
         <div className="space-y-4">
           {wf.slots.map((s) => (
             <label key={s.key} className="block">
-              <span className="text-sm text-zinc-400">
+              <span className="text-sm text-muted">
                 {s.label}
                 {s.required ? " *" : ""}
               </span>
@@ -126,7 +126,7 @@ export default function Create() {
           <button
             onClick={submit}
             disabled={status === "running" || status === "queued"}
-            className="w-full rounded bg-zinc-100 py-2 font-medium text-zinc-900 disabled:opacity-50"
+            className="w-full rounded bg-fg py-2 font-medium text-bg disabled:opacity-50"
           >
             生成
           </button>
@@ -136,17 +136,17 @@ export default function Create() {
       <section>
         <h2 className="mb-4 text-xl font-semibold">进度</h2>
         {status === "" ? (
-          <p className="text-sm text-zinc-500">尚未提交</p>
+          <p className="text-sm text-muted">尚未提交</p>
         ) : (
           <div className="space-y-3">
             <p className="text-sm">状态：{status}</p>
             {progress !== null && (
-              <div className="h-2 w-full rounded bg-zinc-800">
+              <div className="h-2 w-full rounded bg-surface-hover">
                 <div
-                  className="h-2 rounded bg-zinc-100 transition-all"
+                  className="h-2 rounded bg-fg transition-all"
                   style={{ width: `${Math.min(progress, 100)}%` }}
                 />
-                <p className="mt-1 text-xs text-zinc-400">{progress.toFixed(0)}%</p>
+                <p className="mt-1 text-xs text-muted">{progress.toFixed(0)}%</p>
               </div>
             )}
             {artifacts.length > 0 && (
@@ -156,7 +156,7 @@ export default function Create() {
                     key={a.id}
                     src={`${API_URL}${a.url}`}
                     alt="生成结果"
-                    className="rounded-lg"
+                    className="rounded-lg border border-line"
                   />
                 ))}
               </div>
