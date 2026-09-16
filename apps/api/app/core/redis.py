@@ -10,8 +10,8 @@ from app.core.config import settings
 redis_client = redis.Redis.from_url(settings.redis_url, decode_responses=True)
 
 # RQ 队列用独立连接（RQ 需要原始字节）
-_rq_conn = redis.Redis.from_url(settings.redis_url, decode_responses=False)
-generation_queue = Queue("generation", connection=_rq_conn)
+rq_conn = redis.Redis.from_url(settings.redis_url, decode_responses=False)
+generation_queue = Queue("generation", connection=rq_conn)
 
 # 异步客户端（SSE 订阅转发）
 async_redis = aioredis.from_url(settings.redis_url, decode_responses=True)
