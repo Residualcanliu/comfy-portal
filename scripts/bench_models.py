@@ -75,6 +75,17 @@ def _vram_used() -> int:
     return dev["vram_total"] - dev["vram_free"]
 
 
+def _free_models() -> None:
+    """卸载已缓存模型，让每个模型的显存基线干净（否则读到的是所有模型的缓存总和）。"""
+    req = urllib.request.Request(
+        f"{COMFY}/free",
+        data=json.dumps({"unload_models": True, "free_memory": True}).encode(),
+        headers={"Content-Type": "application/json"},
+    )
+    urllib.request.urlopen(req, timeout=30).read()
+    time.sleep(3)  # 等显存真正回收
+
+
 def _wait_done(prompt_id: str) -> tuple[float, int]:
     """轮询 /history 直到完成，返回 (wall_time, peak_vram)。"""
     t0 = time.time()
@@ -104,7 +115,9 @@ def _build(model: dict) -> dict:
     return wf
 
 
-def _bench_one(model: dict) -> tuple[list[float], list[int]]:
+def _bench_one(model: dict) -> tuple[list[float], list[int], int]:
+    _free_models()
+    baseline = _vram_used()  # 空载基线，用于算模型真实占用
     times: list[float] = []
     vrams: list[int] = []
     for i in range(ITERATIONS):
@@ -115,8 +128,12 @@ def _bench_one(model: dict) -> tuple[list[float], list[int]]:
         times.append(t)
         vrams.append(v)
         tag = "冷启动" if i == 0 else f"第{i + 1}次"
-        print(f"  {tag}: {t:.2f}s  峰值显存 {v / 1024 / 1024:.0f}MB", flush=True)
-    return times, vrams
+        print(
+            f"  {tag}: {t:.2f}s  峰值显存 {v / 1024 / 1024:.0f}MB "
+            f"(净增 {(v - baseline) / 1024 / 1024:.0f}MB)",
+            flush=True,
+        )
+    return times, vrams, baseline
 
 
 def main() -> None:
@@ -124,19 +141,20 @@ def main() -> None:
     results = []
     for m in MODELS:
         print(f"--- {m['name']}  {m['width']}×{m['height']}  steps={m['steps']} ---")
-        times, vrams = _bench_one(m)
-        results.append((m, times, vrams))
+        times, vrams, baseline = _bench_one(m)
+        results.append((m, times, vrams, baseline))
         print()
 
     print("| 模型 | 分辨率 | 冷启动 (s) | 热态 P50 (s) | 平均 (s) | 峰值显存 (MB) |")
     print("|---|---|---|---|---|---|")
-    for m, times, vrams in results:
+    for m, times, vrams, baseline in results:
         cold = times[0]
         warm = times[1:] or times
+        peak = statistics.mean(vrams) / 1024 / 1024
         print(
             f"| {m['name']} | {m['width']}×{m['height']} | {cold:.1f} | "
             f"{statistics.median(warm):.1f} | {statistics.mean(times):.1f} | "
-            f"{statistics.mean(vrams) / 1024 / 1024:.0f} |"
+            f"{peak:.0f} |"
         )
 
 
