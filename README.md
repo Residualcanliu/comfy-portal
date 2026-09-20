@@ -4,7 +4,7 @@
 
 # ComfyPortal
 
-[English](README_EN.md)
+[English](README_EN.md) 网站：https://comfyportal.cc.cd/
 
 **ComfyPortal** 是一个自托管的 ComfyUI 图像生成门户，把本地一块 4090D 的出图能力，做成一个多用户可用的 Web 服务。控制面常驻云上、24 小时在线，GPU 留在本地跑；打开网页、选个工作流、填句提示词，就能排队出图，全程实时看到进度。
 
