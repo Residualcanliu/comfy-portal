@@ -3,10 +3,14 @@
 采集三项分布：提交ACK / enqueued→started（队列等待）/ started→finished（生成耗时）。
 
 用法：python scripts/loadtest.py [并发数] [工作流id]
+
+账号从环境变量读（LOADTEST_EMAIL / LOADTEST_PASSWORD），不写死在脚本里 ——
+本仓库是公开的，任何进 git 的凭据都必须视为已泄漏。
 """
 
 import concurrent.futures
 import json
+import os
 import statistics
 import sys
 import time
@@ -14,7 +18,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime
 
-BASE = "http://127.0.0.1:8000"
+BASE = os.environ.get("LOADTEST_BASE", "http://127.0.0.1:8000")
 
 
 def req(method: str, path: str, token: str | None = None, body: dict | None = None):
@@ -49,7 +53,11 @@ def main() -> None:
     wf_id = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 
     # 1. 登录
-    _, login = req("POST", "/api/auth/login", body={"email": "canliu", "password": "gch17728501545"})
+    email = os.environ.get("LOADTEST_EMAIL")
+    password = os.environ.get("LOADTEST_PASSWORD")
+    if not email or not password:
+        sys.exit("请先设置环境变量 LOADTEST_EMAIL / LOADTEST_PASSWORD")
+    _, login = req("POST", "/api/auth/login", body={"email": email, "password": password})
     token = login["access_token"]
     print(f"登录成功，准备并发 {concurrency} 提交工作流 {wf_id}")
 

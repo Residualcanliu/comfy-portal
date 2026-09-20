@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
+from app.core.config import settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
@@ -30,6 +31,9 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)) -> TokenRespo
         email=body.email,
         password_hash=hash_password(body.password),
         display_name=body.display_name,
+        # 显式落库：此前 DAILY_QUOTA_DEFAULT 环境变量全仓无引用，
+        # 配额实际取的是模型列默认值，运维以为设了其实没生效。
+        daily_quota=settings.daily_quota_default,
     )
     db.add(user)
     db.commit()

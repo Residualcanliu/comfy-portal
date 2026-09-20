@@ -1,5 +1,10 @@
 # Docker 构建时排除（build context = 仓库根，见 deploy/docker-compose.yml）
 # 关键：别把 .env（含真实密钥）和 80MB 的镜像 tar 打进镜像
+#
+# 注意：这里的模式匹配的是「相对上下文根的完整路径」，裸名只匹配根目录同级项。
+# 写 `data` 排不掉 `apps/api/data/`，必须写 `**/data`。
+# 之前就是踩了这个坑，导致 apps/api/comfyportal.db（含账号 bcrypt 哈希）
+# 和 data/artifacts/ 下的生成图被烤进了镜像。
 .git
 .gitignore
 .dockerignore
@@ -12,8 +17,12 @@
 **/.venv
 node_modules
 .next
-data
-artifacts
+**/data
+**/artifacts
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/build
 *.tar
 *.zip
 docs

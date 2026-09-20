@@ -74,30 +74,47 @@ export default function Create() {
 
   useEffect(() => {
     if (taskId === null) return;
-    const es = new EventSource(`${API_URL}/api/tasks/${taskId}/events`);
-    es.addEventListener("status", (e) => {
-      const d = JSON.parse((e as MessageEvent).data);
-      setStatus(d.state);
-    });
-    es.addEventListener("progress", (e) => {
-      const d = JSON.parse((e as MessageEvent).data);
-      setProgress(d.pct);
-    });
-    es.addEventListener("done", (e) => {
-      const d = JSON.parse((e as MessageEvent).data);
-      setStatus("success");
-      setProgress(100);
-      setArtifacts(d.artifacts);
-      es.close();
-    });
-    es.addEventListener("error", (e) => {
-      const d = JSON.parse((e as MessageEvent).data);
-      setStatus("failed");
-      setErr(d.error);
-      es.close();
-    });
-    es.onerror = () => es.close();
-    return () => es.close();
+    let es: EventSource | null = null;
+    let cancelled = false;
+
+    // EventSource 不能自定义请求头，先向 API 换一张 60 秒的短时票据再连，
+    // 避免把 7 天有效的 access token 放进 query string（会落进访问日志）。
+    api<{ ticket: string }>(`/api/tasks/${taskId}/ticket`, { method: "POST" })
+      .then(({ ticket }) => {
+        if (cancelled) return;
+        const source = new EventSource(
+          `${API_URL}/api/tasks/${taskId}/events?ticket=${encodeURIComponent(ticket)}`,
+        );
+        es = source;
+        source.addEventListener("status", (e) => {
+          const d = JSON.parse((e as MessageEvent).data);
+          setStatus(d.state);
+        });
+        source.addEventListener("progress", (e) => {
+          const d = JSON.parse((e as MessageEvent).data);
+          setProgress(d.pct);
+        });
+        source.addEventListener("done", (e) => {
+          const d = JSON.parse((e as MessageEvent).data);
+          setStatus("success");
+          setProgress(100);
+          setArtifacts(d.artifacts);
+          source.close();
+        });
+        source.addEventListener("error", (e) => {
+          const d = JSON.parse((e as MessageEvent).data);
+          setStatus("failed");
+          setErr(d.error);
+          source.close();
+        });
+        source.onerror = () => source.close();
+      })
+      .catch((e) => setErr((e as Error).message));
+
+    return () => {
+      cancelled = true;
+      es?.close();
+    };
   }, [taskId]);
 
   // 排队时轮询队列长度（显示「前方 N 人」）

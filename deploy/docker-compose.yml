@@ -9,17 +9,19 @@ services:
     image: comfyportal-api:latest
     ports:
       - "127.0.0.1:8000:8000" # CF Tunnel 用
-      - "${TAILNET_IP}:8001:8000" # worker 用（内部接口）
+      - "${TAILNET_IP:?TAILNET_IP 必须设置}:8001:8000" # worker 用（内部接口）
     volumes:
       - ./data/artifacts:/data/artifacts
     environment:
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
-      JWT_SECRET: ${JWT_SECRET}
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
+      REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD 必须设置}@redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET 必须设置}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?INTERNAL_TOKEN 必须设置}
       DAILY_QUOTA_DEFAULT: ${DAILY_QUOTA_DEFAULT:-20}
       ARTIFACTS_DIR: /data/artifacts
-      TAILNET_CIDR: ${TAILNET_CIDR:-0.0.0.0/0}
+      # 内部接口的源 IP 闸门。缺省必须收紧到 tailnet，绝不能默认放过所有源 ——
+      # 本仓库公开，INTERNAL_TOKEN 一旦沿用示例值，0.0.0.0/0 就等于没有这道闸门。
+      TAILNET_CIDR: ${TAILNET_CIDR:-100.64.0.0/10}
     depends_on:
       - redis
       - postgres
@@ -31,10 +33,10 @@ services:
   redis:
     image: redis:7
     command: >
-      redis-server --requirepass ${REDIS_PASSWORD}
+      redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD 必须设置}
       --maxmemory 128mb --maxmemory-policy allkeys-lru
     ports:
-      - "${TAILNET_IP}:6379:6379"
+      - "${TAILNET_IP:?TAILNET_IP 必须设置}:6379:6379"
     logging: *logging
 
   postgres:
@@ -61,7 +63,13 @@ services:
     image: grafana/grafana
     profiles: ["monitoring"]
     ports:
-      - "${TAILNET_IP}:3000:3000"
+      - "${TAILNET_IP:?TAILNET_IP 必须设置}:3000:3000"
+    environment:
+      # 官方镜像不设此项时用 admin/admin，且只在首次登录提示改密。
+      # 左边是 Grafana 读的变量名，右边是 .env 里的键名。
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD 必须设置}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
     logging: *logging
 
   node_exporter:
