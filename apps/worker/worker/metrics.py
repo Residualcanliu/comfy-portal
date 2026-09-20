@@ -5,6 +5,7 @@
 """
 
 import logging
+import os
 import threading
 import time
 
@@ -30,7 +31,12 @@ def _sample_vram() -> None:
 
 
 def main() -> None:
-    start_http_server(settings.metrics_port)  # 9101，Prometheus 抓取目标
+    # prometheus_client 的 start_http_server 默认 addr='0.0.0.0'，会让这台日常使用的
+    # Windows 主机把 9101 暴露给同局域网任何设备。默认收紧到回环。
+    # 需要跨机抓取（deploy/prometheus.yml 抓 __WORKER_IP__:9101）时，
+    # 在 .env 里显式设 METRICS_ADDR 为该主机的 tailnet IP。
+    addr = os.environ.get("METRICS_ADDR", "127.0.0.1")
+    start_http_server(settings.metrics_port, addr=addr)
     threading.Thread(target=_sample_vram, daemon=True).start()
     while True:
         time.sleep(3600)

@@ -18,7 +18,7 @@
 
 ## 二、API 响应时间
 
-测法：curl 打线上 `https://api.comfyportal.cc.cd`（公网，经 Cloudflare Tunnel）与 `100.125.221.105:8001`（Tailscale 内网直连）。
+测法：curl 分别打线上公网入口（经 Cloudflare Tunnel）与 Tailscale 内网直连的 `8001` 端口。
 
 | 路径 | 内网直连 P50 | 公网复用连接 | 公网首请求（含 TLS 握手） |
 |------|-------------|-------------|------------------------|

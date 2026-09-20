@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import ipaddress
 import os
 import uuid
@@ -36,7 +37,11 @@ def verify_internal(
     x_internal_token: str = Header(default=""),
 ) -> None:
     """双闸门（§1）：X-Internal-Token + 源 IP ∈ tailnet CIDR。"""
-    if x_internal_token != settings.internal_token:
+    expected = settings.internal_token
+    # 用恒定时间比较，避免逐字符短路构成的时序侧信道。
+    # 同时显式拒绝空配置 —— Header(default="") 意味着 token 为空时
+    # 「不带任何 header 的请求」会直接通过。
+    if not expected or not hmac.compare_digest(x_internal_token, expected):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="invalid internal token")
     ip = request.client.host if request.client else ""
     try:
@@ -47,6 +52,21 @@ def verify_internal(
     if ip_obj.is_loopback or ip_obj in ipaddress.ip_network(settings.tailnet_cidr):
         return
     raise HTTPException(status.HTTP_403_FORBIDDEN, detail="source IP not in tailnet")
+
+
+def _sniff_image_ext(content: bytes) -> str | None:
+    """按魔数判断图片类型，返回白名单内的扩展名，认不出则 None。
+
+    不看上传方给的文件名 —— 那个字段完全由调用方控制，用它拼扩展名意味着
+    可以落一个 .html 到公开静态目录（/files），形成存储型 XSS。
+    """
+    if content.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        return ".webp"
+    return None
 
 
 class StateUpdate(BaseModel):
@@ -108,10 +128,19 @@ async def upload_artifact(
     if task is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="任务不存在")
 
-    ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    if kind != "image":
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="kind 仅支持 image")
+
+    content = await file.read()
+    # 扩展名由服务端从内容推导，不使用 file.filename（该字段由调用方完全控制）
+    ext = _sniff_image_ext(content)
+    if ext is None:
+        raise HTTPException(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="仅支持 JPEG/PNG/WebP"
+        )
+
     filename = f"{task_id}_{uuid.uuid4().hex[:8]}{ext}"
     dest = os.path.join(settings.artifacts_dir, filename)
-    content = await file.read()
     with open(dest, "wb") as f:
         f.write(content)
 
