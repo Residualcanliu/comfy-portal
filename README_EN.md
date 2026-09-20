@@ -4,8 +4,8 @@
 
 # ComfyPortal
 
-[中文](README.md)
-
+[中文](README.md)  
+web：https://comfyportal.cc.cd/
 **ComfyPortal** is a self-hosted ComfyUI image generation portal that turns a local RTX 4090D into a multi-user web service. The control plane runs in the cloud 24/7 while the GPU stays local — open the page, pick a workflow, type a prompt, and images generate in a queue with live progress.
 
 ![Home page](docs/landing.png)
