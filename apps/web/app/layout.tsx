@@ -37,6 +37,9 @@ export default function RootLayout({
             <Link href="/#gallery" className="text-muted transition hover:text-fg">
               画廊
             </Link>
+            <Link href="/#tech" className="text-muted transition hover:text-fg">
+              技术
+            </Link>
           </div>
           <div className="ml-auto flex items-center gap-4">
             <ThemeToggle />

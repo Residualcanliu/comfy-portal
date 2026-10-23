@@ -12,12 +12,25 @@ interface GalleryItem {
   height: number;
 }
 
+interface Stats {
+  totals: {
+    tasks: number;
+    success: number;
+    failed: number;
+    cancelled: number;
+    artifacts: number;
+  };
+  success_rate: number | null;
+  avg_duration_seconds: number | null;
+}
+
 export default function Home() {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [queueLength, setQueueLength] = useState<number | null>(null);
   const [gpuOnline, setGpuOnline] = useState<boolean | null>(null);
   const [readonlyDemo, setReadonlyDemo] = useState(false);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -37,6 +50,9 @@ export default function Home() {
         setGpuOnline(s.gpu_online);
         setReadonlyDemo(s.readonly_demo);
       })
+      .catch(console.error);
+    api<Stats>("/api/stats")
+      .then(setStats)
       .catch(console.error);
     api<{ is_admin: boolean }>("/api/auth/me")
       .then((m) => setIsAdmin(m.is_admin))
@@ -145,12 +161,155 @@ export default function Home() {
                 <div className="font-bold">{w.name}</div>
                 <div className="mt-1 text-xs text-muted">{w.description}</div>
                 <div className="mt-3 text-sm font-semibold text-accent opacity-0 transition group-hover:opacity-100">
-                  开始生成 →
+                  {readonlyDemo ? "查看参数 →" : "开始生成 →"}
                 </div>
               </a>
             ))}
           </div>
         )}
+      </section>
+
+      {/* 技术展示 */}
+      <section id="tech" className="animate-fade-up scroll-mt-20">
+        <div className="mb-5 flex items-baseline justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">
+            系统与架构
+          </h2>
+          <a
+            href="https://github.com/Residualcanliu/comfy-portal"
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm text-accent hover:underline"
+          >
+            查看源码 ↗
+          </a>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            { n: stats?.totals.tasks ?? "—", label: "累计任务" },
+            {
+              n:
+                stats?.success_rate != null
+                  ? `${Math.round(stats.success_rate * 100)}%`
+                  : "—",
+              label: "成功率",
+            },
+            { n: stats?.totals.artifacts ?? "—", label: "生成作品" },
+            {
+              n:
+                stats?.avg_duration_seconds != null
+                  ? `${stats.avg_duration_seconds}s`
+                  : "—",
+              label: "平均出图",
+            },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="rounded-xl border border-line bg-surface p-4 text-center"
+            >
+              <div className="text-2xl font-black">{s.n}</div>
+              <div className="mt-1 text-xs text-muted">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 rounded-xl border border-line bg-surface p-5">
+          <h3 className="font-bold">控制面 / 计算面分离</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            云端 VPS 只跑控制面，负责认证、排队、状态与推送；本地 GPU
+            节点通过 Tailscale 接入，只执行生成任务。GPU
+            关机时任务照常入队，开机后自动续跑。
+          </p>
+          <div className="mt-4 grid gap-3 text-sm md:grid-cols-5">
+            {[
+              "浏览器",
+              "Vercel 前端",
+              "FastAPI 控制面",
+              "Redis + RQ",
+              "本地 GPU + ComfyUI",
+            ].map((item, i) => (
+              <div key={item} className="flex items-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-500/15 text-xs font-bold text-violet-400">
+                  {i + 1}
+                </span>
+                <span className="text-muted">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {[
+            {
+              title: "异步队列 + SSE",
+              body: "任务经 Redis + RQ 排队，worker 把 ComfyUI 的采样进度发布到 Redis，API 通过 SSE 实时推给浏览器。",
+            },
+            {
+              title: "三层故障恢复",
+              body: "30 秒心跳判定节点在线、last_activity 检测卡死任务、后台线程对账 RQ 注册表回收孤儿任务。",
+            },
+            {
+              title: "零公网暴露的 GPU",
+              body: "ComfyUI 只监听本地回环，控制面与 GPU 通过 Tailscale 组网，内部接口再叠加 token 与源 IP 双闸门。",
+            },
+          ].map((x) => (
+            <div
+              key={x.title}
+              className="card-shine rounded-xl border border-line bg-surface p-4"
+            >
+              <h3 className="font-bold">{x.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{x.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl border border-line bg-surface p-5">
+            <h3 className="font-bold">技术栈</h3>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {[
+                "FastAPI",
+                "PostgreSQL",
+                "Redis",
+                "RQ",
+                "SSE",
+                "Tailscale",
+                "Prometheus",
+                "Grafana",
+                "Next.js",
+                "Docker",
+              ].map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-line px-2.5 py-1 text-xs text-muted"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-xl border border-line bg-surface p-5">
+            <h3 className="font-bold">实测出图耗时</h3>
+            <div className="mt-3 space-y-2 text-sm">
+              {[
+                { model: "SD1.5", cold: "20.1s", warm: "5.8s" },
+                { model: "SDXL", cold: "49.5s", warm: "7.1s" },
+                { model: "FLUX.1-dev", cold: "98.7s", warm: "38.2s" },
+              ].map((row) => (
+                <div
+                  key={row.model}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <span className="text-muted">{row.model}</span>
+                  <span className="text-xs text-muted">
+                    冷启动 {row.cold} · 热态 {row.warm}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* 画廊 */}
@@ -206,14 +365,31 @@ export default function Home() {
 
       {/* 结尾 CTA */}
       <section className="animate-fade-up rounded-2xl border border-line bg-surface p-10 text-center">
-        <h2 className="text-3xl font-black tracking-tight">准备好生成你的第一张图了吗？</h2>
-        <p className="mt-2 text-muted">免费注册，选个工作流，几秒出图</p>
-        <a
-          href="#workflows"
-          className="mt-6 inline-block rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-8 py-3 font-semibold text-white transition hover:opacity-90"
-        >
-          开始生成
-        </a>
+        <h2 className="text-3xl font-black tracking-tight">
+          {readonlyDemo ? "这是一个只读演示站" : "准备好生成你的第一张图了吗？"}
+        </h2>
+        <p className="mt-2 text-muted">
+          {readonlyDemo
+            ? "生成能力因合规原因关闭，架构、源码与实测数据全部公开。"
+            : "免费注册，选个工作流，几秒出图"}
+        </p>
+        {readonlyDemo ? (
+          <a
+            href="https://github.com/Residualcanliu/comfy-portal"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 inline-block rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-8 py-3 font-semibold text-white transition hover:opacity-90"
+          >
+            查看源码 ↗
+          </a>
+        ) : (
+          <a
+            href="#workflows"
+            className="mt-6 inline-block rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-8 py-3 font-semibold text-white transition hover:opacity-90"
+          >
+            开始生成
+          </a>
+        )}
       </section>
     </div>
   );
