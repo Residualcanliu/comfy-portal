@@ -45,13 +45,16 @@ export default function RootLayout({
               href="/#workflows"
               className="rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
             >
-              开始生成
+              浏览工作流
             </Link>
           </div>
         </nav>
         <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
         <footer className="border-t border-line px-6 py-8 text-center text-sm text-muted">
           <p>© 2026 ComfyPortal · 自托管 ComfyUI 图像生成门户</p>
+          <p className="mt-2 text-xs">
+            个人技术研究与学习项目 · 公开站点为只读演示，不提供生成式人工智能服务
+          </p>
         </footer>
       </body>
     </html>

@@ -17,6 +17,7 @@ export default function Home() {
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [queueLength, setQueueLength] = useState<number | null>(null);
   const [gpuOnline, setGpuOnline] = useState<boolean | null>(null);
+  const [readonlyDemo, setReadonlyDemo] = useState(false);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -30,10 +31,11 @@ export default function Home() {
       .then(setGallery)
       .catch(console.error)
       .finally(() => setGalleryLoading(false));
-    api<{ queue_length: number; gpu_online: boolean }>("/api/status")
+    api<{ queue_length: number; gpu_online: boolean; readonly_demo: boolean }>("/api/status")
       .then((s) => {
         setQueueLength(s.queue_length);
         setGpuOnline(s.gpu_online);
+        setReadonlyDemo(s.readonly_demo);
       })
       .catch(console.error);
     api<{ is_admin: boolean }>("/api/auth/me")
@@ -65,26 +67,39 @@ export default function Home() {
         <p className="mt-4 max-w-xl text-lg text-muted">
           选工作流 → 填提示词 → 几秒出图，实时看到进度
         </p>
-        {gpuOnline !== null && (
-          <div
-            className={`mt-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${
-              gpuOnline
-                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                : "border-amber-500/30 bg-amber-500/10 text-amber-400"
-            }`}
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${gpuOnline ? "bg-emerald-400" : "bg-amber-400"}`}
-            />
-            <span>{gpuOnline ? "主机在线 · 可立即生成" : "主机离线 · 可提交，稍后生成"}</span>
-          </div>
+        {readonlyDemo ? (
+          <>
+            <p className="mt-5 max-w-2xl rounded-xl border border-line bg-surface px-4 py-3 text-sm leading-relaxed text-muted">
+              本项目为个人技术研究与学习项目，仅用于展示系统架构与工程实践。
+              公开站点为只读演示，不提供生成式人工智能服务。
+            </p>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-muted">
+              <span className="h-2 w-2 rounded-full bg-zinc-400" />
+              <span>只读演示站 · 已关闭生成</span>
+            </div>
+          </>
+        ) : (
+          gpuOnline !== null && (
+            <div
+              className={`mt-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm ${
+                gpuOnline
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                  : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+              }`}
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${gpuOnline ? "bg-emerald-400" : "bg-amber-400"}`}
+              />
+              <span>{gpuOnline ? "主机在线 · 可立即生成" : "主机离线 · 可提交，稍后生成"}</span>
+            </div>
+          )
         )}
         <div className="mt-8 flex gap-3">
           <a
             href="#workflows"
             className="rounded-full bg-gradient-to-r from-violet-500 to-blue-500 px-6 py-3 font-semibold text-white transition hover:opacity-90"
           >
-            开始生成
+            {readonlyDemo ? "浏览工作流" : "开始生成"}
           </a>
           <a
             href="#gallery"
