@@ -44,12 +44,17 @@ class Settings(BaseSettings):
     # 产物目录（本地 dev 默认相对路径；Docker 部署由 env 覆盖为 /data/artifacts）
     artifacts_dir: str = "./data/artifacts"
 
-    # CORS 允许源，逗号分隔。默认放开（本地开发方便），
+    # CORS 允许源，逗号分隔。默认只放本地开发前端；
     # 生产用 CORS_ORIGINS=https://<前端域名> 收紧（规格书 §9）。
-    cors_origins: str = "*"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
-    # 是否开放 /docs /redoc /openapi.json。生产建议设 false。
-    docs_enabled: bool = True
+    # 是否开放 /docs /redoc /openapi.json。
+    # 默认关闭：公开部署时 schema 会把 /internal/* 在内的全部路由一起暴露。
+    docs_enabled: bool = False
+
+    # 只读演示模式：true 时服务端拒绝注册与生成，公开站点仅展示已有内容。
+    # 合规用途是「不向公众提供生成式 AI 服务」—— 关闭能力，而不是只藏按钮。
+    readonly_demo: bool = False
 
     @property
     def cors_origin_list(self) -> list[str]:

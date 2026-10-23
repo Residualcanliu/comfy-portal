@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from sse_starlette.sse import EventSourceResponse
 
 from app.api.deps import get_current_user, get_db
+from app.core.config import settings
 from app.core.metrics import TASKS_TOTAL
 from app.core.prompt import check_prompt, resolve_prompt_api
 from app.core.redis import async_redis, generation_queue, redis_client
@@ -37,6 +38,11 @@ def create_task(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Task:
+    if settings.readonly_demo:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN, detail="演示站为只读模式，不提供生成服务"
+        )
+
     wf = db.get(Workflow, body.workflow_id)
     # 只能跑官方工作流或自己的工作流。不判归属的话，任何人可以拿别人的私有工作流
     # id 提交任务，从产物反推其 prompt_api 与模型配置。

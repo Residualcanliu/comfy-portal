@@ -1,9 +1,11 @@
 """FastAPI 入口（规格书 §5）。"""
 
+import hmac
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
+from fastapi import status as http_status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
@@ -64,6 +66,8 @@ async def security_headers(request, call_next):
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["X-Frame-Options"] = "DENY"
     resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    # 公开演示站不需要被搜索引擎索引
+    resp.headers["X-Robots-Tag"] = "noindex, nofollow"
     if request.url.path.startswith("/files"):
         resp.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
         # 这里刻意不加 Content-Disposition: attachment —— 画廊用 <img src> 直接展示，
@@ -86,7 +90,26 @@ os.makedirs(settings.artifacts_dir, exist_ok=True)
 app.mount("/files", StaticFiles(directory=settings.artifacts_dir), name="files")
 
 
-@app.get("/metrics")
+def _verify_metrics(
+    x_internal_token: str = Header(default=""),
+    authorization: str = Header(default=""),
+) -> None:
+    """指标端点需要内部 token。
+
+    Prometheus 抓取时用 `authorization: credentials` 发 Bearer；手工调试也可以
+    直接带 X-Internal-Token。没有这道闸门，/metrics 会随 API 一起暴露到公网。
+    """
+    expected = settings.internal_token
+    supplied = x_internal_token
+    if not supplied and authorization.lower().startswith("bearer "):
+        supplied = authorization[7:]
+    if not expected or not hmac.compare_digest(supplied, expected):
+        raise HTTPException(
+            http_status.HTTP_401_UNAUTHORIZED, detail="invalid metrics token"
+        )
+
+
+@app.get("/metrics", dependencies=[Depends(_verify_metrics)])
 def metrics() -> Response:
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 

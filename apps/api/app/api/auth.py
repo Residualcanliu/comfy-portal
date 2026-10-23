@@ -24,6 +24,10 @@ def me(user: User = Depends(get_current_user)) -> dict:
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
 def register(body: RegisterRequest, db: Session = Depends(get_db)) -> TokenResponse:
+    if settings.readonly_demo:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN, detail="演示站为只读模式，不开放注册"
+        )
     exists = db.query(User).filter(User.email == body.email).first()
     if exists:
         raise HTTPException(status.HTTP_409_CONFLICT, detail="邮箱已注册")

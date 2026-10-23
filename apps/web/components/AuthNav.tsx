@@ -13,9 +13,13 @@ interface Me {
 
 export default function AuthNav() {
   const [me, setMe] = useState<Me | null>(null);
+  const [demo, setDemo] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    api<{ readonly_demo: boolean }>("/api/status")
+      .then((s) => setDemo(s.readonly_demo))
+      .catch(() => {});
     if (!getToken()) return;
     api<Me>("/api/auth/me")
       .then(setMe)
@@ -32,7 +36,7 @@ export default function AuthNav() {
   if (!me) {
     return (
       <Link href="/login" className="text-sm text-muted hover:text-fg">
-        登录 / 注册
+        {demo ? "登录" : "登录 / 注册"}
       </Link>
     );
   }

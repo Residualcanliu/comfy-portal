@@ -55,6 +55,7 @@ export default function Create() {
   const [queueLength, setQueueLength] = useState<number | null>(null);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [err, setErr] = useState("");
+  const [readonlyDemo, setReadonlyDemo] = useState(false);
 
   useEffect(() => {
     api<WorkflowSummary>(`/api/workflows/${id}`)
@@ -71,6 +72,13 @@ export default function Create() {
       })
       .catch((e) => setErr((e as Error).message));
   }, [id]);
+
+  // 只读演示模式下禁用生成入口
+  useEffect(() => {
+    api<{ readonly_demo: boolean }>("/api/status")
+      .then((s) => setReadonlyDemo(s.readonly_demo))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (taskId === null) return;
@@ -165,6 +173,10 @@ export default function Create() {
   }
 
   async function submit() {
+    if (readonlyDemo) {
+      setErr("演示站为只读模式，已关闭生成功能");
+      return;
+    }
     if (!getToken()) {
       window.location.href = "/login";
       return;
@@ -313,13 +325,23 @@ export default function Create() {
                 )}
               </label>
             ))}
+            {readonlyDemo && (
+              <p className="rounded border border-line bg-surface px-3 py-2 text-sm text-muted">
+                公开演示站为只读模式，已关闭生成功能。
+              </p>
+            )}
             {err && <p className="text-sm text-red-400">{err}</p>}
             <button
               onClick={submit}
-              disabled={status === "running" || status === "queued" || status === "processing"}
+              disabled={
+                readonlyDemo ||
+                status === "running" ||
+                status === "queued" ||
+                status === "processing"
+              }
               className="w-full rounded bg-gradient-to-r from-violet-500 to-blue-500 py-2 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
             >
-              生成
+              {readonlyDemo ? "演示站不可生成" : "生成"}
             </button>
           </div>
         </section>

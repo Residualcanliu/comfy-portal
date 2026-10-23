@@ -22,6 +22,12 @@ services:
       # 内部接口的源 IP 闸门。缺省必须收紧到 tailnet，绝不能默认放过所有源 ——
       # 本仓库公开，INTERNAL_TOKEN 一旦沿用示例值，0.0.0.0/0 就等于没有这道闸门。
       TAILNET_CIDR: ${TAILNET_CIDR:-100.64.0.0/10}
+      # 只读演示：关闭注册与生成（服务端拒绝，不是前端隐藏）
+      READONLY_DEMO: ${READONLY_DEMO:-false}
+      # 生产关闭 /docs /redoc /openapi.json
+      DOCS_ENABLED: ${DOCS_ENABLED:-false}
+      # 前端域名白名单，逗号分隔；留空则拒绝所有跨域请求
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
     depends_on:
       - redis
       - postgres
