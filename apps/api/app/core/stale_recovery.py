@@ -10,7 +10,7 @@ import threading
 import time
 from datetime import UTC, datetime
 
-from rq import Job
+from rq.job import Job
 
 from app.core.metrics import GPU_ONLINE
 from app.core.prompt import resolve_prompt_api
