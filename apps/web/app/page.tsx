@@ -80,7 +80,10 @@ export default function Home() {
             你的下一张图
           </span>
         </h1>
-        <p className="mt-4 max-w-xl text-lg text-muted">
+        <p className="mt-4 text-lg font-semibold text-amber-400">
+          维修中，暂不开启功能
+        </p>
+        <p className="mt-3 max-w-xl text-lg text-muted">
           选工作流 → 填提示词 → 几秒出图，实时看到进度
         </p>
         {readonlyDemo ? (
