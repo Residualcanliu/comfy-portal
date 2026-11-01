@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, API_URL } from "@/lib/api";
 import Spinner from "@/components/Spinner";
 import type { WorkflowSummary } from "@comfy-portal/shared";
 
@@ -27,47 +26,31 @@ interface Stats {
 export default function Home() {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
-  const [queueLength, setQueueLength] = useState<number | null>(null);
   const [gpuOnline, setGpuOnline] = useState<boolean | null>(null);
-  const [readonlyDemo, setReadonlyDemo] = useState(false);
+  const [readonlyDemo, setReadonlyDemo] = useState(true);
   const [stats, setStats] = useState<Stats | null>(null);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    api<WorkflowSummary[]>("/api/workflows?official=1")
+    fetch("/data/workflows.json")
+      .then((r) => r.json())
       .then(setWorkflows)
       .catch(console.error)
       .finally(() => setWorkflowsLoading(false));
-    api<GalleryItem[]>("/api/gallery")
+    fetch("/data/gallery.json")
+      .then((r) => r.json())
       .then(setGallery)
       .catch(console.error)
       .finally(() => setGalleryLoading(false));
-    api<{ queue_length: number; gpu_online: boolean; readonly_demo: boolean }>("/api/status")
-      .then((s) => {
-        setQueueLength(s.queue_length);
-        setGpuOnline(s.gpu_online);
-        setReadonlyDemo(s.readonly_demo);
-      })
-      .catch(console.error);
-    api<Stats>("/api/stats")
+    fetch("/data/stats.json")
+      .then((r) => r.json())
       .then(setStats)
       .catch(console.error);
-    api<{ is_admin: boolean }>("/api/auth/me")
-      .then((m) => setIsAdmin(m.is_admin))
-      .catch(() => {});
+    // 静态演示站：固定只读，不再请求后端
+    setReadonlyDemo(true);
+    setGpuOnline(false);
   }, []);
-
-  async function deleteArtifact(id: number) {
-    if (!confirm("确定删除这张作品吗？")) return;
-    try {
-      await api(`/api/gallery/${id}`, { method: "DELETE" });
-      setGallery((g) => g.filter((x) => x.id !== id));
-    } catch (e) {
-      alert((e as Error).message);
-    }
-  }
 
   return (
     <div className="space-y-16">
@@ -133,7 +116,7 @@ export default function Home() {
       <section className="animate-fade-up grid grid-cols-3 gap-4 border-y border-line py-8">
         {[
           { n: workflows.length, label: "预置工作流" },
-          { n: queueLength ?? "—", label: "当前排队数" },
+          { n: stats?.totals.tasks ?? "—", label: "累计任务" },
           { n: gallery.length, label: "生成作品" },
         ].map((s) => (
           <div key={s.label} className="text-center">
@@ -336,13 +319,13 @@ export default function Home() {
                 className="group relative aspect-square overflow-hidden rounded-lg border border-line"
               >
                 <a
-                  href={`${API_URL}${g.url}`}
+                  href={g.url}
                   target="_blank"
                   rel="noreferrer"
                   className="block h-full w-full"
                 >
                   <img
-                    src={`${API_URL}${g.url}`}
+                    src={g.url}
                     alt={`作品 ${g.id}`}
                     className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                   />
@@ -352,14 +335,6 @@ export default function Home() {
                     </span>
                   </div>
                 </a>
-                {isAdmin && (
-                  <button
-                    onClick={() => deleteArtifact(g.id)}
-                    className="absolute right-2 top-2 rounded-full bg-red-500/80 px-2.5 py-1 text-xs text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600"
-                  >
-                    删除
-                  </button>
-                )}
               </div>
             ))}
           </div>

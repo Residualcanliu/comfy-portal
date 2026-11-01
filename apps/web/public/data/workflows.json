@@ -1,0 +1,271 @@
+[
+  {
+    "id": 1,
+    "name": "SDXL 高清出图",
+    "description": "1024×1024 高清，画质均衡",
+    "slots": [
+      {
+        "key": "prompt",
+        "node": "6",
+        "input": "text",
+        "type": "text",
+        "required": true,
+        "label": "Prompt",
+        "min": null,
+        "max": null,
+        "default": null
+      },
+      {
+        "key": "negative_prompt",
+        "node": "7",
+        "input": "text",
+        "type": "text",
+        "required": true,
+        "label": "Negative",
+        "min": null,
+        "max": null,
+        "default": null
+      },
+      {
+        "key": "steps",
+        "node": "3",
+        "input": "steps",
+        "type": "int",
+        "required": true,
+        "label": "Steps",
+        "min": 1.0,
+        "max": 150.0,
+        "default": 30
+      },
+      {
+        "key": "cfg",
+        "node": "3",
+        "input": "cfg",
+        "type": "float",
+        "required": true,
+        "label": "CFG",
+        "min": 0.0,
+        "max": 30.0,
+        "default": 7.0
+      },
+      {
+        "key": "seed",
+        "node": "3",
+        "input": "seed",
+        "type": "int",
+        "required": true,
+        "label": "Seed(-1随机)",
+        "min": null,
+        "max": null,
+        "default": -1
+      },
+      {
+        "key": "width",
+        "node": "5",
+        "input": "width",
+        "type": "int",
+        "required": true,
+        "label": "Width",
+        "min": null,
+        "max": null,
+        "default": 1024
+      },
+      {
+        "key": "height",
+        "node": "5",
+        "input": "height",
+        "type": "int",
+        "required": true,
+        "label": "Height",
+        "min": null,
+        "max": null,
+        "default": 1024
+      }
+    ],
+    "model_refs": [
+      "sd_xl_base_1.0_0.9vae.safetensors"
+    ],
+    "is_official": true,
+    "available": true
+  },
+  {
+    "id": 2,
+    "name": "FLUX 顶级画质",
+    "description": "细节最丰富，画质最好",
+    "slots": [
+      {
+        "key": "prompt",
+        "node": "6",
+        "input": "text",
+        "type": "text",
+        "required": true,
+        "label": "Prompt",
+        "min": null,
+        "max": null,
+        "default": null
+      },
+      {
+        "key": "negative_prompt",
+        "node": "7",
+        "input": "text",
+        "type": "text",
+        "required": true,
+        "label": "Negative",
+        "min": null,
+        "max": null,
+        "default": null
+      },
+      {
+        "key": "steps",
+        "node": "3",
+        "input": "steps",
+        "type": "int",
+        "required": true,
+        "label": "Steps",
+        "min": 1.0,
+        "max": 150.0,
+        "default": 30
+      },
+      {
+        "key": "cfg",
+        "node": "3",
+        "input": "cfg",
+        "type": "float",
+        "required": true,
+        "label": "CFG",
+        "min": 0.0,
+        "max": 30.0,
+        "default": 3.5
+      },
+      {
+        "key": "seed",
+        "node": "3",
+        "input": "seed",
+        "type": "int",
+        "required": true,
+        "label": "Seed(-1随机)",
+        "min": null,
+        "max": null,
+        "default": -1
+      },
+      {
+        "key": "width",
+        "node": "5",
+        "input": "width",
+        "type": "int",
+        "required": true,
+        "label": "Width",
+        "min": null,
+        "max": null,
+        "default": 1024
+      },
+      {
+        "key": "height",
+        "node": "5",
+        "input": "height",
+        "type": "int",
+        "required": true,
+        "label": "Height",
+        "min": null,
+        "max": null,
+        "default": 1024
+      }
+    ],
+    "model_refs": [
+      "flux1-dev-fp8.safetensors"
+    ],
+    "is_official": true,
+    "available": true
+  },
+  {
+    "id": 3,
+    "name": "SD1.5 极速出图",
+    "description": "几秒一张，追求速度",
+    "slots": [
+      {
+        "key": "prompt",
+        "node": "6",
+        "input": "text",
+        "type": "text",
+        "required": true,
+        "label": "Prompt",
+        "min": null,
+        "max": null,
+        "default": null
+      },
+      {
+        "key": "negative_prompt",
+        "node": "7",
+        "input": "text",
+        "type": "text",
+        "required": true,
+        "label": "Negative",
+        "min": null,
+        "max": null,
+        "default": null
+      },
+      {
+        "key": "steps",
+        "node": "3",
+        "input": "steps",
+        "type": "int",
+        "required": true,
+        "label": "Steps",
+        "min": 1.0,
+        "max": 150.0,
+        "default": 25
+      },
+      {
+        "key": "cfg",
+        "node": "3",
+        "input": "cfg",
+        "type": "float",
+        "required": true,
+        "label": "CFG",
+        "min": 0.0,
+        "max": 30.0,
+        "default": 7.0
+      },
+      {
+        "key": "seed",
+        "node": "3",
+        "input": "seed",
+        "type": "int",
+        "required": true,
+        "label": "Seed(-1随机)",
+        "min": null,
+        "max": null,
+        "default": -1
+      },
+      {
+        "key": "width",
+        "node": "5",
+        "input": "width",
+        "type": "int",
+        "required": true,
+        "label": "Width",
+        "min": null,
+        "max": null,
+        "default": 512
+      },
+      {
+        "key": "height",
+        "node": "5",
+        "input": "height",
+        "type": "int",
+        "required": true,
+        "label": "Height",
+        "min": null,
+        "max": null,
+        "default": 512
+      }
+    ],
+    "model_refs": [
+      "v1-5-pruned_Q8_0.gguf",
+      "clip_l.safetensors",
+      "vae-ft-mse-840000-ema-pruned.safetensors"
+    ],
+    "is_official": true,
+    "available": true
+  }
+]

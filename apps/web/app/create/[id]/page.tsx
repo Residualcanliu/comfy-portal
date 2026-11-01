@@ -55,11 +55,15 @@ export default function Create() {
   const [queueLength, setQueueLength] = useState<number | null>(null);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [err, setErr] = useState("");
-  const [readonlyDemo, setReadonlyDemo] = useState(false);
+  // 静态演示站固定只读
+  const readonlyDemo = true;
 
   useEffect(() => {
-    api<WorkflowSummary>(`/api/workflows/${id}`)
-      .then((w) => {
+    fetch("/data/workflows.json")
+      .then((r) => r.json())
+      .then((list: WorkflowSummary[]) => {
+        const w = list.find((x) => String(x.id) === id);
+        if (!w) throw new Error("工作流不存在");
         setWf(w);
         const init: Record<string, string> = {};
         let steps = 30;
@@ -72,13 +76,6 @@ export default function Create() {
       })
       .catch((e) => setErr((e as Error).message));
   }, [id]);
-
-  // 只读演示模式下禁用生成入口
-  useEffect(() => {
-    api<{ readonly_demo: boolean }>("/api/status")
-      .then((s) => setReadonlyDemo(s.readonly_demo))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (taskId === null) return;

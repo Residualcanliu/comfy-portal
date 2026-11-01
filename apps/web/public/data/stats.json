@@ -1,0 +1,12 @@
+{
+  "totals": {
+    "tasks": 38,
+    "success": 26,
+    "failed": 2,
+    "cancelled": 10,
+    "artifacts": 11
+  },
+  "success_rate": 0.929,
+  "avg_duration_seconds": 37.8,
+  "snapshot": "2026-11-01"
+}

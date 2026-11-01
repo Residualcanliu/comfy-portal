@@ -50,6 +50,15 @@ artifacts/
 !docs/*.png
 !docs/*.jpg
 
+# 静态演示分支：固化作品图与快照数据
+!apps/web/public/gallery/
+!apps/web/public/gallery/*.jpg
+!apps/web/public/gallery/*.png
+!apps/web/public/gallery/*.jpeg
+!apps/web/public/gallery/*.webp
+!apps/web/public/data/
+!apps/web/public/data/*.json
+
 # os / logs
 .DS_Store
 Thumbs.db
